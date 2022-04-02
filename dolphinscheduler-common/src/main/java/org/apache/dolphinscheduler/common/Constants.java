@@ -388,7 +388,7 @@ public final class Constants {
      *
      * rpc port
      */
-    public static final int RPC_PORT = 50051;
+    public static final int RPC_PORT = 50059;
 
     /**
      * forbid running task
@@ -945,6 +945,7 @@ public final class Constants {
     public static final String COM_SQLSERVER_JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
     public static final String COM_DB2_JDBC_DRIVER = "com.ibm.db2.jcc.DB2Driver";
     public static final String COM_PRESTO_JDBC_DRIVER = "com.facebook.presto.jdbc.PrestoDriver";
+    public static final String COM_GREENPLUM_JDBC_DRIVER = "com.pivotal.jdbc.GreenplumDriver";
 
 
     /**
@@ -958,6 +959,7 @@ public final class Constants {
     public static final String SQLSERVER_VALIDATION_QUERY = "select 1";
     public static final String DB2_VALIDATION_QUERY = "select 1 from sysibm.sysdummy1";
     public static final String PRESTO_VALIDATION_QUERY = "select 1";
+    public static final String GREENPLUM_VALIDATION_QUERY = "select version()";
 
     /**
      * database type
@@ -971,6 +973,7 @@ public final class Constants {
     public static final String SQLSERVER = "SQLSERVER";
     public static final String DB2 = "DB2";
     public static final String PRESTO = "PRESTO";
+    public static final String GREENPLUM = "GREENPLUM";
 
     /**
      * jdbc url
@@ -984,6 +987,7 @@ public final class Constants {
     public static final String JDBC_SQLSERVER = "jdbc:sqlserver://";
     public static final String JDBC_DB2 = "jdbc:db2://";
     public static final String JDBC_PRESTO = "jdbc:presto://";
+    public static final String JDBC_GREENPLUM = "jdbc:pivotal:greenplum://";
 
 
     public static final String ADDRESS = "address";

@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -46,6 +48,11 @@ public class DolphinSchedulerManager {
     }
 
     private DbType getCurrentDbType(DataSource dataSource) throws Exception {
+    	HikariDataSource ds1 = (HikariDataSource) dataSource;
+    	String userName = ds1.getUsername();
+    	String password = ds1.getPassword();
+    	String url = ds1.getJdbcUrl();
+    	logger.info("dataSource userName:{}, url:{}." , userName ,url);
         try (Connection conn = dataSource.getConnection()) {
             String name = conn.getMetaData().getDatabaseProductName().toUpperCase();
             return DbType.valueOf(name);

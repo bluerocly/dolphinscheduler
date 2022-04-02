@@ -21,6 +21,7 @@ import org.apache.dolphinscheduler.plugin.datasource.api.datasource.BaseDataSour
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.DatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.clickhouse.ClickHouseDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.db2.Db2DatasourceProcessor;
+import org.apache.dolphinscheduler.plugin.datasource.api.datasource.greenplum.GreenplumDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.hive.HiveDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.mysql.MysqlDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.oracle.OracleDatasourceProcessor;
@@ -30,7 +31,6 @@ import org.apache.dolphinscheduler.plugin.datasource.api.datasource.spark.SparkD
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.sqlserver.SqlServerDatasourceProcessor;
 import org.apache.dolphinscheduler.spi.datasource.ConnectionParam;
 import org.apache.dolphinscheduler.spi.enums.DbType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +50,7 @@ public class DatasourceUtil {
     private static final DatasourceProcessor sqlServerProcessor = new SqlServerDatasourceProcessor();
     private static final DatasourceProcessor db2PROCESSOR = new Db2DatasourceProcessor();
     private static final DatasourceProcessor prestoPROCESSOR = new PrestoDatasourceProcessor();
+    private static final DatasourceProcessor greenplumPROCESSOR = new GreenplumDatasourceProcessor();
 
     /**
      * check datasource param
@@ -106,6 +107,8 @@ public class DatasourceUtil {
                 return db2PROCESSOR;
             case PRESTO:
                 return prestoPROCESSOR;
+            case GREENPLUM:
+                return greenplumPROCESSOR;
             default:
                 throw new IllegalArgumentException("datasource type illegal:" + dbType);
         }
