@@ -236,6 +236,10 @@
             label: 'MYSQL'
           },
           {
+            value: 'GREENPLUM',
+            label: 'GREENPLUM'
+          },
+          {
             value: 'POSTGRESQL',
             label: 'POSTGRESQL'
           },
@@ -477,6 +481,9 @@
           case 'PRESTO':
             defaultPort = '8080'
             break
+          case 'GREENPLUM':
+            defaultPort = '5432'
+            break            
           default:
             break
         }

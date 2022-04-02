@@ -73,6 +73,11 @@ export default {
       disabled: false
     },
     {
+      id: 10,
+      code: 'GREENPLUM',
+      disabled: false
+    },
+    {
       id: 1,
       code: 'POSTGRESQL',
       disabled: false
