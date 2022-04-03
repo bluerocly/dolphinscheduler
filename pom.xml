@@ -76,7 +76,12 @@
         <httpclient.version>4.4.1</httpclient.version>
         <httpcore.version>4.4.1</httpcore.version>
         <junit.version>4.12</junit.version>
-        <mysql.connector.version>8.0.16</mysql.connector.version>
+        <!-- mysql-connector-java and MySQL don't need to be same version
+        See this http://dev.mysql.com/doc/refman/5.6/en/connector-j-versions.html 
+        it says that for MySQL 4.1, 5.0, 5.1, 5.5, 5.6, 5.7
+         recommended Connector/J version is 5.1 -->
+        <mysql.connector.version>5.1.30</mysql.connector.version>
+       <!--  <mysql.connector.version>8.0.16</mysql.connector.version> -->
         <slf4j.api.version>1.7.5</slf4j.api.version>
         <slf4j.log4j12.version>1.7.5</slf4j.log4j12.version>
         <commons.collections.version>3.2.2</commons.collections.version>
@@ -95,6 +100,7 @@
         <oshi.core.version>3.9.1</oshi.core.version>
         <clickhouse.jdbc.version>0.1.52</clickhouse.jdbc.version>
         <mssql.jdbc.version>6.1.0.jre8</mssql.jdbc.version>
+        <greenplum.jdbc.version>6.0.0</greenplum.jdbc.version>
         <presto.jdbc.version>0.238.1</presto.jdbc.version>
         <spotbugs.version>3.1.12</spotbugs.version>
         <checkstyle.version>3.1.2</checkstyle.version>
@@ -385,6 +391,11 @@
                 <artifactId>dolphinscheduler-datasource-sqlserver</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.dolphinscheduler</groupId>
+                <artifactId>dolphinscheduler-datasource-greenplum</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.apache.dolphinscheduler</groupId>
@@ -596,7 +607,7 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.version}</version>
-                <scope>test</scope>
+                <!-- <scope>test</scope> -->
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
@@ -756,6 +767,12 @@
                 <version>${clickhouse.jdbc.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.pivotal</groupId>
+                <artifactId>greenplum-jdbc</artifactId>
+                <version>${greenplum.jdbc.version}</version>
+            </dependency>
+            
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
