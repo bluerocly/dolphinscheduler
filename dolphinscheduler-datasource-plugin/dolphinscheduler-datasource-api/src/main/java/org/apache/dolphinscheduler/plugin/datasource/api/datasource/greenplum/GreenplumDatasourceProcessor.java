@@ -35,6 +35,7 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import java.util.HashMap;
 public class GreenplumDatasourceProcessor extends AbstractDatasourceProcessor {
 
     @Override
@@ -58,8 +59,13 @@ public class GreenplumDatasourceProcessor extends AbstractDatasourceProcessor {
     public BaseConnectionParam createConnectionParams(BaseDataSourceParamDTO datasourceParam) {
         GreenplumDatasourceParamDTO greenplumParam = (GreenplumDatasourceParamDTO) datasourceParam;
         String address = String.format("%s%s:%s", Constants.JDBC_GREENPLUM, greenplumParam.getHost(), greenplumParam.getPort());
-        String jdbcUrl = String.format("%s/%s", address, greenplumParam.getDatabase());
-
+        // Change to the greenplum driver's pattern.
+//        String jdbcUrl = String.format("%s/%s", address, greenplumParam.getDatabase());
+        String jdbcUrl = address;
+        if(MapUtils.isEmpty(greenplumParam.getOther())) {
+        	greenplumParam.setOther(new HashMap<String,String>());
+        }
+        greenplumParam.getOther().put("DatabaseName", greenplumParam.getDatabase());
         GreenplumConnectionParam greenplumConnectionParam = new GreenplumConnectionParam();
         greenplumConnectionParam.setAddress(address);
         greenplumConnectionParam.setDatabase(greenplumParam.getDatabase());
