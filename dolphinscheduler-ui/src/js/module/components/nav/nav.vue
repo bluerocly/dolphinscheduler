@@ -429,7 +429,7 @@
         width: 180px;
         height: 46px;
         display: block;
-        background: url("./logo.svg") no-repeat;
+        background: url("./logo2.svg") no-repeat;
       }
     }
     .nav-box {
