@@ -95,7 +95,7 @@
                                 </configuration>
                             </execution>
 
-<!--                             <execution>
+                            <execution>
                                 <id>python</id>
                                 <phase>package</phase>
                                 <goals>
@@ -109,7 +109,7 @@
                                         <descriptor>src/main/assembly/dolphinscheduler-python-api.xml</descriptor>
                                     </descriptors>
                                 </configuration>
-                            </execution> -->
+                            </execution>
 
                         </executions>
                     </plugin>
