@@ -57,6 +57,10 @@
         <dependency>
             <groupId>org.apache.dolphinscheduler</groupId>
             <artifactId>dolphinscheduler-datasource-greenplum</artifactId>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dolphinscheduler</groupId>
+            <artifactId>dolphinscheduler-datasource-ftp</artifactId>
+        </dependency>
     </dependencies>
 </project>

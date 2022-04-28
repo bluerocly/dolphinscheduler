@@ -123,7 +123,7 @@ public abstract class AbstractCommandExecutor {
         processBuilder.redirectErrorStream(true);
 
         // if sudo.enable=true,setting up user to run commands
-        if (OSUtils.isSudoEnable()) {
+        if (!OSUtils.isWindows() && OSUtils.isSudoEnable()) {
             command.add("sudo");
             command.add("-u");
             command.add(taskRequest.getTenantCode());

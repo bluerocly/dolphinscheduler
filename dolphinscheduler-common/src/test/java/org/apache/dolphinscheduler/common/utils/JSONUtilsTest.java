@@ -21,6 +21,7 @@ import org.apache.dolphinscheduler.common.enums.DataType;
 import org.apache.dolphinscheduler.common.enums.Direct;
 import org.apache.dolphinscheduler.common.model.TaskNode;
 import org.apache.dolphinscheduler.common.process.Property;
+import org.apache.dolphinscheduler.common.task.datax.DataxParameters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -231,6 +232,13 @@ public class JSONUtilsTest {
 
         node.put("color", "red");
         Assert.assertEquals("red", node.path("color").asText());
+    }
+    
+    @Test
+    public void parseDataxObject() {
+    	String parameter = "{\"customConfig\":0,\"dsType\":\"POSTGRESQL\",\"dataSource\":3,\"dtType\":\"FTP\",\"dataTarget\":4,\"sql\":\"select day_id,province_name,region_name,all_reason_amount,wireless_reason_amount,server_reason_amount,user_reason_amount,core_net_reason_amount,other_reason_amount,insert_time,region_abbreviation,area_type,int_id,city_name,first_result_time\\nfrom dmdb.dm_cm_devops_complaint_position_reg_d\\nwhere day_id = to_char('2021-08-15'::date ,'yyyyMMdd'):: int\",\"targetTable\":\"\",\"jobSpeedByte\":0,\"jobSpeedRecord\":1000,\"preStatements\":\"\",\"postStatements\":\"\",\"xms\":1,\"xmx\":1,\"fileName\":\"dm_cm_devops_complaint_position_reg_d-${v_d_date}\",\"subdirectory\":\"/home/tong/testlij/dxfile/\",\"notification\":true,\"queueName\":\"tongcstest\",\"groupId\":2,\"messagejson\":\"{\\n\\t\\\"groupid\\\":\\\"sssss\\\"\\n}\",\"dependence\":{},\"conditionResult\":{\"successNode\":[],\"failedNode\":[]},\"waitStartTimeout\":{},\"switchResult\":{}}";
+    	DataxParameters parseObject = JSONUtils.parseObject(parameter, DataxParameters.class);
+    	System.out.println(parseObject.getMessagejson());
     }
 
     @Test

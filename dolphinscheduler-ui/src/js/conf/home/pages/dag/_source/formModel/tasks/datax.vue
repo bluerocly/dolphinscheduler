@@ -59,12 +59,33 @@
           <m-datasource
             ref="refDt"
             @on-dsData="_onDtData"
-            :supportType="['MYSQL','POSTGRESQL', 'ORACLE', 'SQLSERVER']"
+            :supportType="['MYSQL', 'FTP', 'POSTGRESQL', 'ORACLE', 'SQLSERVER']"
             :data="{ type:dtType,datasource:datatarget }">
           </m-datasource>
         </div>
       </m-list-box>
-      <m-list-box>
+      <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('Subdirectory')}}</div>
+        <div slot="content">
+          <el-input
+            type="input"
+            size="small"
+            v-model="subdirectory">
+          </el-input>
+        </div>
+      </m-list-box>
+      <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('File Name')}}</div>
+        <div slot="content">
+          <el-input
+            type="input"
+            size="small"
+            v-model="fileName">
+          </el-input>
+        </div>
+      </m-list-box>
+
+      <m-list-box v-if="dtType!='FTP'">
         <div slot="text">{{$t('TargetTable')}}</div>
         <div slot="content">
           <el-input
@@ -75,7 +96,7 @@
           </el-input>
         </div>
       </m-list-box>
-      <m-list-box>
+      <m-list-box v-if="dtType!='FTP'">
         <div slot="text">{{$t('TargetDataBase')}}{{$t('Pre Statement')}}</div>
         <div slot="content">
           <m-statement-list
@@ -85,7 +106,7 @@
           </m-statement-list>
         </div>
       </m-list-box>
-      <m-list-box>
+      <m-list-box  v-if="dtType!='FTP'">
         <div slot="text">{{$t('TargetDataBase')}}{{$t('Post Statement')}}</div>
         <div slot="content">
           <m-statement-list
@@ -160,6 +181,46 @@
       width="80%">
       <m-script-box :item="item" @getSriptBoxValue="getSriptBoxValue" @closeAble="closeAble"></m-script-box>
     </el-dialog>
+    <m-list-box>
+      <div slot="text">{{$t('Notification')}}</div>
+      <div slot="content">
+        <el-switch size="small" v-model="notification" @change="notSwitch"></el-switch>
+      </div>
+    </m-list-box>
+    <m-list-box v-if="!!notification">
+      <div slot="text">{{$t('Queue name')}}</div>
+      <div slot="content">
+        <el-input
+          type="input"
+          size="small"
+          v-model="queueName"
+          :placeholder="$t('Please enter the Queue name')">
+        </el-input>
+        
+      </div>
+    </m-list-box>
+    <m-list-box v-show="!!notification">
+      <div slot="text">{{$t('Alarm group')}}</div>
+      <div slot="content">
+        <m-warning-groups v-model="groupId"></m-warning-groups>
+      </div>
+    </m-list-box>
+    
+    <m-list-box  v-if="!!notification">
+        <div slot="text">{{$t('Message template')}}</div>
+        <div slot="content">
+          <div class="form-mirror">
+            <textarea
+              id="code-message-mirror"
+              name="code-message-mirror"
+              style="opacity: 0;">
+            </textarea>
+            <a class="ans-modal-box-max">
+              <em class="el-icon-full-screen" @click="setMessageEditorVal"></em>
+            </a>
+          </div>
+        </div>
+      </m-list-box>
   </div>
 </template>
 <script>
@@ -173,10 +234,11 @@
   import disabledState from '@/module/mixin/disabledState'
   import mSelectInput from '../_source/selectInput'
   import codemirror from '@/conf/home/pages/resource/pages/file/pages/_source/codemirror'
+  import mWarningGroups from './_source/warningGroups'
 
   let editor
   let jsonEditor
-
+  let messageEditor
   export default {
     name: 'datax',
 
@@ -199,6 +261,7 @@
         // Sql statement
         sql: '',
         json: '',
+        messagejson:'',
         // target table
         targetTable: '',
         // Pre statements
@@ -217,7 +280,14 @@
         // jvm memory xms
         xmx: 1,
         scriptBoxDialog: false,
-        item: ''
+        item: '',
+        //Subdirectory
+        subdirectory:"",
+        //File Name
+        fileName:"",
+        notification:false,
+        queueName:'',
+        groupId:null
       }
     },
     mixins: [disabledState],
@@ -228,6 +298,10 @@
     methods: {
       setEditorVal () {
         this.item = editor.getValue()
+        this.scriptBoxDialog = true
+      },
+      setMessageEditorVal () {
+        this.item = messageEditor.getValue()
         this.scriptBoxDialog = true
       },
       getSriptBoxValue (val) {
@@ -246,6 +320,13 @@
           }, 200)
         }
       },
+      notSwitch(is){
+        if(is){
+          setTimeout(() => {
+            this._handlerMessageEditor()
+          }, 200)
+        }
+      },
       /**
        * return data source
        */
@@ -257,6 +338,7 @@
        * return data target
        */
       _onDtData (o) {
+        //console.log(o)
         this.dtType = o.type
         this.rtDatatarget = o.datasource
       },
@@ -282,6 +364,22 @@
        * verification
        */
       _verification () {
+        if(this.notification){
+          console.log("messageEditor",messageEditor.getValue())
+          
+          if (!this.queueName) {
+            this.$message.warning(`${i18n.$t('Please enter a queueName(required)')}`)
+            return false
+          }
+          if (!this.groupId) {
+            this.$message.warning(`${i18n.$t('Please enter a Alarm group(required)')}`)
+            return false
+          }
+          if (!messageEditor.getValue()) {
+            this.$message.warning(`${i18n.$t('Please enter a Message Template(required)')}`)
+            return false
+          }
+        }
         if (this.customConfig) {
           if (!jsonEditor.getValue()) {
             this.$message.warning(`${i18n.$t('Please enter a JSON Statement(required)')}`)
@@ -299,10 +397,15 @@
             json: jsonEditor.getValue(),
             localParams: this.localParams,
             xms: +this.xms,
-            xmx: +this.xmx
+            xmx: +this.xmx,
+            notification:this.notification,
+            queueName:this.queueName,
+            groupId:this.groupId,
+            messagejson:messageEditor?messageEditor.getValue() : '',
           })
           return true
         } else {
+          console.log("this",this);
           if (!editor.getValue()) {
             this.$message.warning(`${i18n.$t('Please enter a SQL Statement(required)')}`)
             return false
@@ -318,21 +421,28 @@
             return false
           }
 
-          if (!this.targetTable) {
+          if (!this.targetTable && this.dtType!='FTP') {
             this.$message.warning(`${i18n.$t('Please enter a Target Table(required)')}`)
             return false
           }
 
           // preStatements Subcomponent verification
-          if (!this.$refs.refPreStatements._verifProp()) {
+          if (this.dtType!='FTP'&& !this.$refs.refPreStatements._verifProp()) {
             return false
           }
 
           // postStatements Subcomponent verification
-          if (!this.$refs.refPostStatements._verifProp()) {
+          if (this.dtType!='FTP' && !this.$refs.refPostStatements._verifProp()) {
             return false
           }
-
+          if (!this.fileName && this.dtType=='FTP') {
+            this.$message.warning(`${i18n.$t('Please enter a FileName(required)')}`)
+            return false
+          }
+          if (!this.subdirectory && this.dtType=='FTP') {
+            this.$message.warning(`${i18n.$t('Please enter a Subdirectory(required)')}`)
+            return false
+          }
           // storage
           this.$emit('on-params', {
             customConfig: this.customConfig,
@@ -347,7 +457,13 @@
             preStatements: this.preStatements,
             postStatements: this.postStatements,
             xms: +this.xms,
-            xmx: +this.xmx
+            xmx: +this.xmx,
+            fileName:this.fileName,
+            subdirectory:this.subdirectory,
+            notification:this.notification,
+            queueName:this.queueName,
+            groupId:this.groupId,
+            messagejson:messageEditor ? messageEditor.getValue() : ''
           })
           return true
         }
@@ -382,6 +498,34 @@
         editor.setValue(this.sql)
 
         return editor
+      },
+      _handlerMessageEditor () {
+        this._destroyMessageEditor()
+
+        // jsonEditor
+        messageEditor = codemirror('code-message-mirror', {
+          mode: 'json',
+          readOnly: this.isDetails
+        })
+
+        this.messagekeypress = () => {
+          if (!messageEditor.getOption('readOnly')) {
+            messageEditor.showHint({
+              completeSingle: false
+            })
+          }
+        }
+
+        // Monitor keyboard
+        messageEditor.on('keypress', this.messagekeypress)
+
+        messageEditor.on('changes', () => {
+          this._cacheParams()
+        })
+
+        messageEditor.setValue(this.messagejson)
+
+        return messageEditor
       },
       _handlerJsonEditor () {
         this._destroyJsonEditor()
@@ -424,7 +568,13 @@
           preStatements: this.preStatements,
           postStatements: this.postStatements,
           xms: +this.xms,
-          xmx: +this.xmx
+          xmx: +this.xmx,
+          fileName:this.fileName,
+          subdirectory:this.subdirectory,
+          notification:this.notification,
+          queueName:this.queueName,
+          groupId:this.groupId,
+          messagejson:messageEditor?messageEditor.getValue() : '',
         })
       },
       _destroyEditor () {
@@ -440,11 +590,18 @@
           jsonEditor.off($('.code-json-mirror'), 'keypress', this.keypress)
           jsonEditor.off($('.code-json-mirror'), 'changes', this.changes)
         }
+      },
+      _destroyMessageEditor () {
+        if (messageEditor) {
+          messageEditor.toTextArea() // Uninstall
+          messageEditor.off($('.code-message-mirror'), 'keypress', this.messagekeypress)
+          messageEditor.off($('.code-message-mirror'), 'changes', this.changes)
+        }
       }
     },
     created () {
       let o = this.backfillItem
-
+      console.log("o",o)
       // Non-null objects represent backfill
       if (!_.isEmpty(o)) {
         // set jvm memory
@@ -454,6 +611,8 @@
         if (o.params.customConfig === 0) {
           this.customConfig = 0
           this.enable = false
+          this.fileName=o.params.fileName||""
+          this.subdirectory=o.params.subdirectory||""
           this.dsType = o.params.dsType || ''
           this.datasource = o.params.dataSource || ''
           this.dtType = o.params.dtType || ''
@@ -464,11 +623,18 @@
           this.jobSpeedRecord = o.params.jobSpeedRecord || 0
           this.preStatements = o.params.preStatements || []
           this.postStatements = o.params.postStatements || []
+          
         } else {
           this.customConfig = 1
           this.enable = true
           this.json = o.params.json || []
           this.localParams = o.params.localParams || ''
+        }
+        if(o.params.notification){
+          this.notification=o.params.notification||false
+          this.queueName=o.params.queueName||""
+          this.groupId=o.params.groupId||null
+          this.messagejson = o.params.messagejson || []
         }
       }
     },
@@ -480,6 +646,11 @@
       } else {
         setTimeout(() => {
           this._handlerEditor()
+        }, 200)
+      }
+      if(this.notification){
+        setTimeout(() => {
+          this._handlerMessageEditor()
         }, 200)
       }
     },
@@ -495,11 +666,32 @@
         jsonEditor.toTextArea() // Uninstall
         jsonEditor.off($('.code-json-mirror'), 'keypress', this.keypress)
       }
+      if(messageEditor){
+        messageEditor.toTextArea() // Uninstall
+        messageEditor.off($('.code-message-mirror'), 'keypress', this.keypress)
+      }
     },
     watch: {
       // Watch the cacheParams
       cacheParams (val) {
         this._cacheParams()
+      },
+      dtType(val){
+        if(val=='FTP'){
+          this.targetTable="";
+          this.preStatements="";
+          this.postStatements="";
+        }else{
+          this.fileName="";
+          this.subdirectory="";
+        }
+      },
+      notification(val){
+        if(!val){
+          this.queueName='';
+          this.groupId=null;
+          this.messagejson="";
+        }
       }
     },
     computed: {
@@ -513,10 +705,13 @@
           jobSpeedByte: this.jobSpeedByte * 1024,
           jobSpeedRecord: this.jobSpeedRecord,
           preStatements: this.preStatements,
-          postStatements: this.postStatements
+          postStatements: this.postStatements,
+          notification: this.postStatements,
+          queueName:this.queueName,
+          groupId:this.groupId
         }
       }
     },
-    components: { mListBox, mDatasource, mLocalParams, mStatementList, mSelectInput, mScriptBox }
+    components: { mListBox, mDatasource, mLocalParams, mStatementList, mSelectInput, mScriptBox, mWarningGroups }
   }
 </script>

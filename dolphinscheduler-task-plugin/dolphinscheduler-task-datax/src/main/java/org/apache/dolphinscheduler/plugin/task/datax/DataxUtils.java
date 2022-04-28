@@ -47,6 +47,7 @@ public class DataxUtils {
     public static final String DATAX_WRITER_PLUGIN_SQLSERVER = "sqlserverwriter";
 
     public static final String DATAX_WRITER_PLUGIN_CLICKHOUSE = "clickhousewriter";
+    public static final String DATAX_WRITER_PLUGIN_FTP = "ftpwriter";
 
     public static String getReaderPluginName(DbType dbType) {
         switch (dbType) {
@@ -77,6 +78,8 @@ public class DataxUtils {
                 return DATAX_WRITER_PLUGIN_SQLSERVER;
             case CLICKHOUSE:
                 return DATAX_WRITER_PLUGIN_CLICKHOUSE;
+            case FTP:
+                return DATAX_WRITER_PLUGIN_FTP;                
             default:
                 return null;
         }

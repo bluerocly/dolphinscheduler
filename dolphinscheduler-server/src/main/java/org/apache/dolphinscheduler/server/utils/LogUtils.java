@@ -24,6 +24,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.sift.SiftingAppender;
@@ -31,7 +33,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.spi.AppenderAttachable;
 
 public class LogUtils {
-
+	private static final Logger logger = LoggerFactory.getLogger(LogUtils.class);
     private LogUtils() throws IllegalStateException {
         throw new IllegalStateException("Utility class");
     }
@@ -40,6 +42,22 @@ public class LogUtils {
      * get task log path
      */
     public static String getTaskLogPath(Long processDefineCode, int processDefineVersion, int processInstanceId, int taskInstanceId) {
+    	/**
+    	ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+    	if(loggerFactory == null) {
+    		logger.info("taskInstanceId: {} loggerFactory is null.", taskInstanceId);
+    		return "";
+    	}
+    	AppenderAttachable<ILoggingEvent> tmp1 = (AppenderAttachable<ILoggingEvent>) (loggerFactory.getLogger("ROOT"));
+    	SiftingAppender tmp2 = (SiftingAppender) tmp1.getAppender("TASKLOGFILE");
+    	TaskLogDiscriminator tmp3 = (TaskLogDiscriminator) tmp2.getDiscriminator();
+    	String logBase = tmp3.getLogBase();
+    	Path returnPath = Paths.get(logBase).toAbsolutePath().resolve(processDefineCode + "_" + processDefineVersion)
+    	.resolve(String.valueOf(processInstanceId))
+        .resolve(taskInstanceId + ".log");
+    	String returnLog = returnPath.toString();
+    	logger.info("taskInstanceId: {}, returnLog:{} ", taskInstanceId, returnLog);
+    	*/
         // Optional.map will be skipped if null
         return Optional.of(LoggerFactory.getILoggerFactory())
                 .map(e -> (AppenderAttachable<ILoggingEvent>) (e.getLogger("ROOT")))

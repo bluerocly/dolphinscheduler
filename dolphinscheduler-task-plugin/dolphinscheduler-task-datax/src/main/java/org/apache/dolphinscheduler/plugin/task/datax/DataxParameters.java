@@ -51,7 +51,7 @@ public class DataxParameters extends AbstractParameters {
     private int dataSource;
 
     /**
-     * data target type，eg  MYSQL, POSTGRES ...
+     * data target type，eg  MYSQL, POSTGRES ...增加FTP
      */
     private String dtType;
 
@@ -59,7 +59,7 @@ public class DataxParameters extends AbstractParameters {
      * datatarget id
      */
     private int dataTarget;
-
+    
     /**
      * sql
      */
@@ -99,8 +99,63 @@ public class DataxParameters extends AbstractParameters {
      * Xmx memory
      */
     private int xmx;
+    
+    private String fileName;
+    private String subdirectory;
+    private Boolean notification;
+    private String queueName;
+    private int groupId;
+    private String messagejson;
+    
+	public String getFileName() {
+		return fileName;
+	}
 
-    public int getCustomConfig() {
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public String getSubdirectory() {
+		return subdirectory;
+	}
+
+	public void setSubdirectory(String subdirectory) {
+		this.subdirectory = subdirectory;
+	}
+
+	public Boolean getNotification() {
+		return notification;
+	}
+
+	public void setNotification(Boolean notification) {
+		this.notification = notification;
+	}
+
+	public String getQueueName() {
+		return queueName;
+	}
+
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
+	}
+
+	public int getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getMessagejson() {
+		return messagejson;
+	}
+
+	public void setMessagejson(String messagejson) {
+		this.messagejson = messagejson;
+	}
+
+	public int getCustomConfig() {
         return customConfig;
     }
 
@@ -218,7 +273,7 @@ public class DataxParameters extends AbstractParameters {
             return dataSource != 0
                     && dataTarget != 0
                     && StringUtils.isNotEmpty(sql)
-                    && StringUtils.isNotEmpty(targetTable);
+                    && !(StringUtils.isEmpty(targetTable) && StringUtils.isEmpty(subdirectory));
         } else {
             return StringUtils.isNotEmpty(json);
         }

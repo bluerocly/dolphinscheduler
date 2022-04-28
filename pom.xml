@@ -312,6 +312,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.dolphinscheduler</groupId>
+                <artifactId>dolphinscheduler-alert-kafka</artifactId>
+                <version>${project.version}</version>
+            </dependency>            
+            <dependency>
+                <groupId>org.apache.dolphinscheduler</groupId>
                 <artifactId>dolphinscheduler-alert-http</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -394,6 +399,11 @@
             <dependency>
                 <groupId>org.apache.dolphinscheduler</groupId>
                 <artifactId>dolphinscheduler-datasource-greenplum</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dolphinscheduler</groupId>
+                <artifactId>dolphinscheduler-datasource-ftp</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

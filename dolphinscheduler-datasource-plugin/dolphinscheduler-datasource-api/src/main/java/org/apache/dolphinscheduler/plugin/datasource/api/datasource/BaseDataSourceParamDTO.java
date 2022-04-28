@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.clickhouse.ClickHouseDatasourceParamDTO;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.db2.Db2DatasourceParamDTO;
+import org.apache.dolphinscheduler.plugin.datasource.api.datasource.ftp.FtpDatasourceParamDTO;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.greenplum.GreenplumDatasourceParamDTO;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.hive.HiveDataSourceParamDTO;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.mysql.MysqlDatasourceParamDTO;
@@ -60,6 +61,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = Db2DatasourceParamDTO.class, name = "DB2"),
         @JsonSubTypes.Type(value = PrestoDatasourceParamDTO.class, name = "PRESTO"),
         @JsonSubTypes.Type(value = GreenplumDatasourceParamDTO.class, name = "GREENPLUM"),
+        @JsonSubTypes.Type(value = FtpDatasourceParamDTO.class, name = "FTP"),
 })
 public abstract class BaseDataSourceParamDTO implements Serializable {
 

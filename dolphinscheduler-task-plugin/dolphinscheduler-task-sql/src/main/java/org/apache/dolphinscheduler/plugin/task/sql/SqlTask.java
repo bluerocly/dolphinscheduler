@@ -200,8 +200,10 @@ public class SqlTask extends AbstractTaskExecutor {
             } else if (sqlParameters.getSqlType() == SqlType.NON_QUERY.ordinal()) {
                 // non query statement
                 String updateResult = String.valueOf(stmt.executeUpdate());
+                logger.info("execute sql return updateResult = {}." ,updateResult);
                 result = setNonQuerySqlReturn(updateResult, sqlParameters.getLocalParams());
             }
+            logger.info("execute sql return result = {} ." + result);
             //deal out params
             sqlParameters.dealOutParam(result);
             postSql(connection, postStatementsBinds);

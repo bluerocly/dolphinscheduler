@@ -40,8 +40,10 @@ public abstract class AbstractDatasourceProcessor implements DatasourceProcessor
     @Override
     public void checkDatasourceParam(BaseDataSourceParamDTO baseDataSourceParamDTO) {
         checkHost(baseDataSourceParamDTO.getHost());
-        checkDatasourcePatter(baseDataSourceParamDTO.getDatabase());
-        checkOther(baseDataSourceParamDTO.getOther());
+        if(baseDataSourceParamDTO.getType() != DbType.FTP) {
+        	checkDatasourcePatter(baseDataSourceParamDTO.getDatabase());
+        	checkOther(baseDataSourceParamDTO.getOther());
+        }
     }
 
     /**

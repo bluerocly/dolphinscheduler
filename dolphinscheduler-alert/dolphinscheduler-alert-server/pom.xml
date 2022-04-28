@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>org.apache.dolphinscheduler</groupId>
+            <artifactId>dolphinscheduler-alert-kafka</artifactId>
+        </dependency>        
+        <dependency>
+            <groupId>org.apache.dolphinscheduler</groupId>
             <artifactId>dolphinscheduler-alert-http</artifactId>
         </dependency>
         <dependency>

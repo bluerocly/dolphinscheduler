@@ -20,6 +20,7 @@ package org.apache.dolphinscheduler.spi.utils;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT;
+import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static com.fasterxml.jackson.databind.DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL;
 import static com.fasterxml.jackson.databind.MapperFeature.REQUIRE_SETTERS_FOR_GETTERS;
@@ -62,6 +63,7 @@ public class JSONUtils {
             .configure(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true)
             .configure(READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
             .configure(REQUIRE_SETTERS_FOR_GETTERS, true)
+            .configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
             .setTimeZone(TimeZone.getDefault());
 
     private JSONUtils() {

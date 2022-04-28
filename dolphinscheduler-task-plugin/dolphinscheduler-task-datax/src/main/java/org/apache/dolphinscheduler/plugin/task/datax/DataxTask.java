@@ -33,6 +33,7 @@ import org.apache.dolphinscheduler.spi.enums.DbType;
 import org.apache.dolphinscheduler.spi.enums.Flag;
 import org.apache.dolphinscheduler.spi.task.AbstractParameters;
 import org.apache.dolphinscheduler.spi.task.Property;
+import org.apache.dolphinscheduler.spi.task.TaskAlertInfo;
 import org.apache.dolphinscheduler.spi.task.paramparser.ParamUtils;
 import org.apache.dolphinscheduler.spi.task.paramparser.ParameterUtils;
 import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
@@ -85,12 +86,14 @@ public class DataxTask extends AbstractTaskExecutor {
     /**
      * python process(datax only supports version 2.7 by default)
      */
-    private static final String DATAX_PYTHON = "python2.7";
+//    private static final String DATAX_PYTHON = "python2.7";
+    private static final String DATAX_PYTHON = "python";
     private static final Pattern PYTHON_PATH_PATTERN = Pattern.compile("/bin/python[\\d.]*$");
     /**
      * datax path
      */
     private static final String DATAX_PATH = "${DATAX_HOME}/bin/datax.py";
+    private static final String DATAX_PATH_WIN = "%DATAX_HOME%/bin/datax.py";
     /**
      * datax channel count
      */
@@ -163,10 +166,35 @@ public class DataxTask extends AbstractTaskExecutor {
             setExitStatusCode(commandExecuteResult.getExitStatusCode());
             setAppIds(commandExecuteResult.getAppIds());
             setProcessId(commandExecuteResult.getProcessId());
+            
+            // 增加日志解析获取指标？还是发
+            // 发送通知消息
+            if(dataXParameters.getNotification()==null || dataXParameters.getNotification()) {
+            	String topicName = dataXParameters.getQueueName();
+            	String msgContent = dataXParameters.getMessagejson();
+            	String content = msgContent;
+            	sendNotify(dataXParameters.getGroupId(), topicName, content);
+            }
+            
         } catch (Exception e) {
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw e;
         }
+    }
+    
+    /**
+     * send alert as an notify
+     *
+     * @param title title
+     * @param content content
+     */
+    private void sendNotify(int groupId, String title, String content) {
+        setNeedAlert(Boolean.TRUE);
+        TaskAlertInfo taskAlertInfo = new TaskAlertInfo();
+        taskAlertInfo.setAlertGroupId(groupId);
+        taskAlertInfo.setContent(content);
+        taskAlertInfo.setTitle(title);
+        setTaskAlertInfo(taskAlertInfo);
     }
 
     /**
@@ -205,7 +233,12 @@ public class DataxTask extends AbstractTaskExecutor {
             json = dataXParameters.getJson().replaceAll("\\r\\n", "\n");
         } else {
             ObjectNode job = JSONUtils.createObjectNode();
-            job.putArray("content").addAll(buildDataxJobContentJson());
+            
+            if(DbType.FTP.name().equalsIgnoreCase(dataXParameters.getDtType())) {
+            	job.putArray("content").addAll(buildDataxJobContentJsonDB2Ftp());
+            } else {
+            	job.putArray("content").addAll(buildDataxJobContentJson());
+            }
             job.set("setting", buildDataxJobSettingJson());
 
             ObjectNode root = JSONUtils.createObjectNode();
@@ -311,6 +344,103 @@ public class DataxTask extends AbstractTaskExecutor {
 
         return contentList;
     }
+    
+    /**
+     * build datax job config
+     *
+     * @return collection of datax job config JSONObject
+     * @throws SQLException if error throws SQLException
+     */
+    private List<ObjectNode> buildDataxJobContentJsonDB2Ftp() {
+        DataxTaskExecutionContext dataxTaskExecutionContext = taskExecutionContext.getDataxTaskExecutionContext();
+        BaseConnectionParam dataSourceCfg = (BaseConnectionParam) DatasourceUtil.buildConnectionParams(
+                DbType.of(dataxTaskExecutionContext.getSourcetype()),
+                dataxTaskExecutionContext.getSourceConnectionParams());
+
+        BaseConnectionParam dataTargetCfg = (BaseConnectionParam) DatasourceUtil.buildConnectionParams(
+                DbType.of(dataxTaskExecutionContext.getTargetType()),
+                dataxTaskExecutionContext.getTargetConnectionParams());
+
+        List<ObjectNode> readerConnArr = new ArrayList<>();
+        ObjectNode readerConn = JSONUtils.createObjectNode();
+
+        ArrayNode sqlArr = readerConn.putArray("querySql");
+        for (String sql : new String[]{dataXParameters.getSql()}) {
+            sqlArr.add(sql);
+        }
+
+        ArrayNode urlArr = readerConn.putArray("jdbcUrl");
+        urlArr.add(DatasourceUtil.getJdbcUrl(DbType.valueOf(dataXParameters.getDsType()), dataSourceCfg));
+
+        readerConnArr.add(readerConn);
+
+        ObjectNode readerParam = JSONUtils.createObjectNode();
+        readerParam.put("username", dataSourceCfg.getUser());
+        readerParam.put("password", decodePassword(dataSourceCfg.getPassword()));
+        readerParam.putArray("connection").addAll(readerConnArr);
+
+        ObjectNode reader = JSONUtils.createObjectNode();
+        reader.put("name", DataxUtils.getReaderPluginName(DbType.of(dataxTaskExecutionContext.getSourcetype())));
+        reader.set("parameter", readerParam);
+
+//        List<ObjectNode> writerConnArr = new ArrayList<>();
+//        ObjectNode writerConn = JSONUtils.createObjectNode();
+//        ArrayNode tableArr = writerConn.putArray("table");
+//        tableArr.add(dataXParameters.getTargetTable());
+
+//        writerConn.put("jdbcUrl", DatasourceUtil.getJdbcUrl(DbType.valueOf(dataXParameters.getDtType()), dataTargetCfg));
+//        writerConnArr.add(writerConn);
+
+        ObjectNode writerParam = JSONUtils.createObjectNode();
+        writerParam.put("protocol", "sftp");
+        writerParam.put("host", "10.10.80.70");
+        writerParam.put("port", "22");
+        writerParam.put("username", dataTargetCfg.getUser());
+        writerParam.put("password", decodePassword(dataTargetCfg.getPassword()));
+        writerParam.put("timeout", "60000");
+        writerParam.put("connectPattern", "PASV");
+        writerParam.put("path", "/home/tong/testlij/dxfile");
+        writerParam.put("fileName", "test222");
+        
+        writerParam.put("writeMode", "truncate");
+        writerParam.put("fieldDelimiter", "|");
+        writerParam.put("encoding", "UTF-8");
+        writerParam.put("nullFormat", "null");
+        writerParam.put("dateFormat", "yyyy-MM-dd");
+        writerParam.put("fileFormat", "csv");
+        writerParam.put("suffix", ".csv");
+        writerParam.putArray("header");
+
+
+//        writerParam.putArray("connection").addAll(writerConnArr);
+
+//        if (CollectionUtils.isNotEmpty(dataXParameters.getPreStatements())) {
+//            ArrayNode preSqlArr = writerParam.putArray("preSql");
+//            for (String preSql : dataXParameters.getPreStatements()) {
+//                preSqlArr.add(preSql);
+//            }
+//
+//        }
+
+//        if (CollectionUtils.isNotEmpty(dataXParameters.getPostStatements())) {
+//            ArrayNode postSqlArr = writerParam.putArray("postSql");
+//            for (String postSql : dataXParameters.getPostStatements()) {
+//                postSqlArr.add(postSql);
+//            }
+//        }
+
+        ObjectNode writer = JSONUtils.createObjectNode();
+        writer.put("name", DataxUtils.getWriterPluginName(DbType.of(dataxTaskExecutionContext.getTargetType())));
+        writer.set("parameter", writerParam);
+
+        List<ObjectNode> contentList = new ArrayList<>();
+        ObjectNode content = JSONUtils.createObjectNode();
+        content.set("reader", reader);
+        content.set("writer", writer);
+        contentList.add(content);
+
+        return contentList;
+    }
 
     /**
      * build datax setting config
@@ -391,7 +521,7 @@ public class DataxTask extends AbstractTaskExecutor {
         StringBuilder sbr = new StringBuilder();
         sbr.append(getPythonCommand());
         sbr.append(" ");
-        sbr.append(DATAX_PATH);
+        sbr.append(OSUtils.isWindows() ? DATAX_PATH_WIN : DATAX_PATH);
         sbr.append(" ");
         sbr.append(loadJvmEnv(dataXParameters));
         sbr.append(jobConfigFilePath);

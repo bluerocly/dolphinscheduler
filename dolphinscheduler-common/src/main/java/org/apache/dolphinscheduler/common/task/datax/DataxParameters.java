@@ -100,8 +100,65 @@ public class DataxParameters extends AbstractParameters {
      * Xmx memory
      */
     private int xmx;
+    
+    private String fileName;
+    private String subdirectory;
+    private Boolean notification;
+    private String queueName;
+    private int groupId;
+    private String messagejson;
+    
+    
 
-    public int getCustomConfig() {
+    public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public String getSubdirectory() {
+		return subdirectory;
+	}
+
+	public void setSubdirectory(String subdirectory) {
+		this.subdirectory = subdirectory;
+	}
+
+	public Boolean getNotification() {
+		return notification;
+	}
+
+	public void setNotification(Boolean notification) {
+		this.notification = notification;
+	}
+
+	public String getQueueName() {
+		return queueName;
+	}
+
+	public void setQueueName(String queueName) {
+		this.queueName = queueName;
+	}
+
+	public int getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getMessagejson() {
+		return messagejson;
+	}
+
+	public void setMessagejson(String messagejson) {
+		this.messagejson = messagejson;
+	}
+
+	public int getCustomConfig() {
         return customConfig;
     }
 
@@ -219,7 +276,7 @@ public class DataxParameters extends AbstractParameters {
             return dataSource != 0
                     && dataTarget != 0
                     && !StringUtils.isEmpty(sql)
-                    && !StringUtils.isEmpty(targetTable);
+                    && !(StringUtils.isEmpty(targetTable) && StringUtils.isEmpty(subdirectory));
         } else {
             return !StringUtils.isEmpty(json);
         }
@@ -247,6 +304,13 @@ public class DataxParameters extends AbstractParameters {
                 + ", jobSpeedRecord=" + jobSpeedRecord
                 + ", xms=" + xms
                 + ", xmx=" + xmx
+                + ", fileName=" + fileName 
+                + ", subdirectory=" + subdirectory 
+                + ", notification=" + notification 
+                + ", queueName=" + queueName 
+                + ", groupId=" + groupId 
+                + ", messagejson=" + messagejson
                 + '}';
     }
+
 }

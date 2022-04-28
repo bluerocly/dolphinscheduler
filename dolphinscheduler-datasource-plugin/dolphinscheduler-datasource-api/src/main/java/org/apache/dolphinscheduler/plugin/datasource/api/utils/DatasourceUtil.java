@@ -21,6 +21,7 @@ import org.apache.dolphinscheduler.plugin.datasource.api.datasource.BaseDataSour
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.DatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.clickhouse.ClickHouseDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.db2.Db2DatasourceProcessor;
+import org.apache.dolphinscheduler.plugin.datasource.api.datasource.ftp.FtpDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.greenplum.GreenplumDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.hive.HiveDatasourceProcessor;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.mysql.MysqlDatasourceProcessor;
@@ -51,6 +52,7 @@ public class DatasourceUtil {
     private static final DatasourceProcessor db2PROCESSOR = new Db2DatasourceProcessor();
     private static final DatasourceProcessor prestoPROCESSOR = new PrestoDatasourceProcessor();
     private static final DatasourceProcessor greenplumPROCESSOR = new GreenplumDatasourceProcessor();
+    private static final DatasourceProcessor ftpPROCESSOR = new FtpDatasourceProcessor();
 
     /**
      * check datasource param
@@ -109,6 +111,8 @@ public class DatasourceUtil {
                 return prestoPROCESSOR;
             case GREENPLUM:
                 return greenplumPROCESSOR;
+            case FTP:
+            	return ftpPROCESSOR;
             default:
                 throw new IllegalArgumentException("datasource type illegal:" + dbType);
         }

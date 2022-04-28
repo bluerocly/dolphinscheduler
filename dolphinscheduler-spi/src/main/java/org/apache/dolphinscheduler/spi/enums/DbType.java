@@ -36,7 +36,8 @@ public enum DbType {
     DB2(7, "db2"),
     PRESTO(8, "presto"),
     H2(9, "h2"),
-	GREENPLUM(10, "greenplum");
+	GREENPLUM(10, "greenplum"),
+	FTP(11, "ftp");
 
     @EnumValue
     private final int code;

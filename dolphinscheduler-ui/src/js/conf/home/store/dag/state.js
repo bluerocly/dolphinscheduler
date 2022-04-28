@@ -78,6 +78,11 @@ export default {
       disabled: false
     },
     {
+      id: 11,
+      code: 'FTP',
+      disabled: false
+    },    
+    {
       id: 1,
       code: 'POSTGRESQL',
       disabled: false

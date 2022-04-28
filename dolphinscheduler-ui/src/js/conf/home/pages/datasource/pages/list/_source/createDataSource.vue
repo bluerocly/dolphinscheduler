@@ -140,7 +140,7 @@
             </el-input>
           </template>
         </m-list-box-f>
-        <m-list-box-f>
+        <m-list-box-f v-if="showDatabaseInfo">
           <template slot="name"><strong :class="{hidden:showDatabase}">*</strong>{{$t('Database Name')}}</template>
           <template slot="content">
             <el-input
@@ -161,7 +161,16 @@
             </el-radio-group>
           </template>
         </m-list-box-f>
-        <m-list-box-f>
+        <m-list-box-f v-if="showFtpConnectType">
+          <template slot="name"><strong>*</strong>{{$t('Ftp Connect Type')}}</template>
+          <template slot="content">
+            <el-radio-group v-model="ftpConnectType" size="small" style="vertical-align: sub;">
+              <el-radio :label="'FTP_NAME'">{{$t('Ftp Name')}}</el-radio>
+              <el-radio :label="'SFTP_NAME'">{{$t('Sftp Name')}}</el-radio>
+            </el-radio-group>
+          </template>
+        </m-list-box-f>        
+        <m-list-box-f v-if="showDatabaseInfo">
           <template slot="name">{{$t('jdbc connect parameters')}}</template>
           <template slot="content">
             <el-input
@@ -221,13 +230,17 @@
         password: '',
         // Database connect type
         connectType: '',
+        // Ftp connect type
+        ftpConnectType: '',
         // Jdbc connection parameter
         other: '',
         // btn test loading
         testLoading: false,
         showPrincipal: true,
         showDatabase: false,
+        showDatabaseInfo: false,
         showConnectType: false,
+        showFtpConnectType: false,
         isShowPrincipal: true,
         prePortMapper: {},
         datasourceTypeList: [
@@ -238,6 +251,10 @@
           {
             value: 'GREENPLUM',
             label: 'GREENPLUM'
+          },
+          {
+            value: 'FTP',
+            label: 'FTP'
           },
           {
             value: 'POSTGRESQL',
@@ -316,6 +333,7 @@
           userName: this.userName,
           password: this.password,
           connectType: this.connectType,
+          ftpConnectType: this.ftpConnectType,
           other: this.other === '' ? null : JSON.parse(this.other)
         }
       },
@@ -428,6 +446,7 @@
           this.userName = res.userName
           this.password = res.password
           this.connectType = res.connectType
+          this.ftpConnectType = res.ftpConnectType
           this.other = res.other === null ? '' : JSON.stringify(res.other)
         }).catch(e => {
           this.$message.error(e.msg || '')
@@ -483,6 +502,9 @@
             break
           case 'GREENPLUM':
             defaultPort = '5432'
+            break
+          case 'FTP':
+            defaultPort = '22'
             break            
           default:
             break
@@ -514,6 +536,22 @@
         } else {
           this.showConnectType = false
         }
+        //add ftp
+        if (value === 'FTP' && !this.item.id) {
+          this.showFtpConnectType = true
+          this.showDatabaseInfo = false
+          this.showDatabase = true
+          this.ftpConnectType = 'FTP_NAME'
+        } else if (value === 'FTP' && this.item.id) {
+          this.showFtpConnectType = true
+          this.showDatabaseInfo = false
+          this.showDatabase = true
+        } else {
+          this.showFtpConnectType = false
+          this.showDatabaseInfo = true
+          this.showDatabase = false
+        }
+        
         // Set default port for each type datasource
         this._setDefaultValues(value)
 

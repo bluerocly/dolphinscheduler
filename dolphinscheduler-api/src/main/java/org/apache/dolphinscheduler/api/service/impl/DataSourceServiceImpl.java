@@ -317,6 +317,12 @@ public class DataSourceServiceImpl extends BaseServiceImpl implements DataSource
     @Override
     public Result<Object> checkConnection(DbType type, ConnectionParam connectionParam) {
         Result<Object> result = new Result<>();
+        if(DbType.FTP.equals(type)) {
+        	// TODO 测试ftp连接
+            putMsg(result, Status.SUCCESS);
+            return result;
+        }
+        
         try (Connection connection = DataSourceClientProvider.getInstance().getConnection(type, connectionParam)) {
             if (connection == null) {
                 putMsg(result, Status.CONNECTION_TEST_FAILURE);
@@ -342,6 +348,12 @@ public class DataSourceServiceImpl extends BaseServiceImpl implements DataSource
         if (dataSource == null) {
             Result<Object> result = new Result<>();
             putMsg(result, Status.RESOURCE_NOT_EXIST);
+            return result;
+        }
+        if(DbType.FTP.equals(dataSource.getType())) {
+        	Result<Object> result = new Result<>();
+        	// TODO 测试ftp连接
+            putMsg(result, Status.SUCCESS);
             return result;
         }
         return checkConnection(dataSource.getType(), DatasourceUtil.buildConnectionParams(dataSource.getType(), dataSource.getConnectionParams()));

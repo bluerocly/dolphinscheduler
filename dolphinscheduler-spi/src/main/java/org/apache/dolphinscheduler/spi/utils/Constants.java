@@ -164,6 +164,9 @@ public class Constants {
     public static final String JDBC_DB2 = "jdbc:db2://";
     public static final String JDBC_PRESTO = "jdbc:presto://";
     public static final String JDBC_GREENPLUM = "jdbc:pivotal:greenplum://";
+    
+    public static final String SFTP= "sftp://";
+    public static final String FTP= "ftp://";
 
 
     public static final String ADDRESS = "address";

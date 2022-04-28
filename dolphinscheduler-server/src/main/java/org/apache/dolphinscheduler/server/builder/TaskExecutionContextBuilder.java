@@ -66,7 +66,8 @@ public class TaskExecutionContextBuilder {
     }
 
     public TaskExecutionContextBuilder buildTaskDefinitionRelatedInfo(TaskDefinition taskDefinition) {
-        taskExecutionContext.setTaskTimeout(Integer.MAX_VALUE);
+//        taskExecutionContext.setTaskTimeout(Integer.MAX_VALUE);
+        taskExecutionContext.setTaskTimeout(60);
         if (taskDefinition.getTimeoutFlag() == TimeoutFlag.OPEN) {
             taskExecutionContext.setTaskTimeoutStrategy(taskDefinition.getTimeoutNotifyStrategy());
             if (taskDefinition.getTimeoutNotifyStrategy() == TaskTimeoutStrategy.FAILED
