@@ -600,6 +600,7 @@ export default {
   TargetJobName: 'target job name',
   'Please enter Pigeon job name': 'Please enter Pigeon job name',
   'Please enter the table of target': 'Please enter the table of target',
+  'Please enter the queue name': 'Please enter the queue name',
   'Please enter a Target Table(required)': 'Please enter a Target Table(required)',
   SpeedByte: 'speed(byte count)',
   SpeedRecord: 'speed(record count)',

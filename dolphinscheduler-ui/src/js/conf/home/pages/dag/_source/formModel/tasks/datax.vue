@@ -194,7 +194,7 @@
           type="input"
           size="small"
           v-model="queueName"
-          :placeholder="$t('Please enter the Queue name')">
+          :placeholder="$t('Please enter the queue name')">
         </el-input>
         
       </div>
