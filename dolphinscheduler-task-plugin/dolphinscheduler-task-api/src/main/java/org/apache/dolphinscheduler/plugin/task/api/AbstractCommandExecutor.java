@@ -20,12 +20,6 @@ package org.apache.dolphinscheduler.plugin.task.api;
 import static org.apache.dolphinscheduler.spi.task.TaskConstants.EXIT_CODE_FAILURE;
 import static org.apache.dolphinscheduler.spi.task.TaskConstants.EXIT_CODE_KILL;
 
-import org.apache.dolphinscheduler.plugin.task.util.OSUtils;
-import org.apache.dolphinscheduler.spi.task.TaskConstants;
-import org.apache.dolphinscheduler.spi.task.TaskExecutionContextCacheManager;
-import org.apache.dolphinscheduler.spi.task.request.TaskRequest;
-import org.apache.dolphinscheduler.spi.utils.StringUtils;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,6 +40,12 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.dolphinscheduler.plugin.task.util.Kernel32;
+import org.apache.dolphinscheduler.plugin.task.util.OSUtils;
+import org.apache.dolphinscheduler.spi.task.TaskConstants;
+import org.apache.dolphinscheduler.spi.task.TaskExecutionContextCacheManager;
+import org.apache.dolphinscheduler.spi.task.request.TaskRequest;
+import org.apache.dolphinscheduler.spi.utils.StringUtils;
 import org.slf4j.Logger;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -317,6 +317,22 @@ public abstract class AbstractCommandExecutor {
                 String line;
                 logBuffer.add("welcome to use bigdata scheduling system...");
                 while ((line = inReader.readLine()) != null) {
+                	if (line.contains(TaskConstants.TASK_DATAX_START_TIME_SUFFIX)) {
+                		varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_START_TIME,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_END_TIME_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_END_TIME,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_TOTAL_TIME_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_TOTAL_TIME,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_AVERAGE_FLOW_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_AVERAGE_FLOW,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_RECORD_WRITING_SPEED_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_WRITING_SPEED,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_RECORD_READER_NUM_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_READER_NUM,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_RECORD_WRITING_ERROR_NUM_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_WRITING_ERROR_NUM,subResult(line)));
+                    }
+                	
                     if (line.startsWith("${setValue(")) {
                         varPool.append(line, "${setValue(".length(), line.length() - 2);
                         varPool.append("$VarPool$");
@@ -353,6 +369,13 @@ public abstract class AbstractCommandExecutor {
             }
         });
         parseProcessOutputExecutorService.shutdown();
+    }
+    
+    private static String subResult(String line) {
+        if (StringUtils.isBlank(line)) return "";
+        int pos = line.indexOf(TaskConstants.COLON);
+        if (pos > 0) return line.substring(pos + 1).trim();
+        return line.trim();
     }
 
     /**
@@ -443,13 +466,24 @@ public abstract class AbstractCommandExecutor {
     private int getProcessId(Process process) {
         int processId = 0;
 
-        try {
-            Field f = process.getClass().getDeclaredField(TaskConstants.PID);
-            f.setAccessible(true);
-
-            processId = f.getInt(process);
-        } catch (Throwable e) {
-            logger.error(e.getMessage(), e);
+        if(OSUtils.isWindows()) {
+            try {
+            	Field field = process.getClass().getDeclaredField("handle");
+                field.setAccessible(true);
+//                processId = Kernel32.INSTANCE.GetProcessId((Long) field.get(process));
+                processId = (int) Kernel32.INSTANCE.GetProcessId(field.getLong(process));
+            } catch (Exception ex) {
+                logger.error("get process id for windows error {0}", ex);
+            }
+        } else {
+        	try {
+        		Field f = process.getClass().getDeclaredField(TaskConstants.PID);
+        		f.setAccessible(true);
+        		
+        		processId = f.getInt(process);
+        	} catch (Throwable e) {
+        		logger.error(e.getMessage(), e);
+        	}
         }
 
         return processId;

@@ -131,6 +131,7 @@
         <byte-buddy.version>1.9.16</byte-buddy.version>
         <java-websocket.version>1.5.1</java-websocket.version>
         <py4j.version>0.10.9</py4j.version>
+        <jna.version>4.5.1</jna.version>
         <auto-service.version>1.0.1</auto-service.version>
         <jacoco.skip>false</jacoco.skip>
         <netty.version>4.1.53.Final</netty.version>
@@ -865,6 +866,12 @@
                 <artifactId>py4j</artifactId>
                 <version>${py4j.version}</version>
             </dependency>
+
+	        <dependency>
+	            <groupId>net.java.dev.jna</groupId>
+	            <artifactId>jna</artifactId>
+	            <version>${jna.version}</version>
+	        </dependency>            
         </dependencies>
     </dependencyManagement>
 

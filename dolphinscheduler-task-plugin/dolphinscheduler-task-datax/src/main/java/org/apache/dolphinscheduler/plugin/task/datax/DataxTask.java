@@ -34,6 +34,7 @@ import org.apache.dolphinscheduler.spi.enums.Flag;
 import org.apache.dolphinscheduler.spi.task.AbstractParameters;
 import org.apache.dolphinscheduler.spi.task.Property;
 import org.apache.dolphinscheduler.spi.task.TaskAlertInfo;
+import org.apache.dolphinscheduler.spi.task.TaskConstants;
 import org.apache.dolphinscheduler.spi.task.paramparser.ParamUtils;
 import org.apache.dolphinscheduler.spi.task.paramparser.ParameterUtils;
 import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
@@ -170,9 +171,20 @@ public class DataxTask extends AbstractTaskExecutor {
             // 增加日志解析获取指标？还是发
             // 发送通知消息
             if(dataXParameters.getNotification()==null || dataXParameters.getNotification()) {
+            	String varPool = shellCommandExecutor.getVarPool();
+            	Map<String, String> mapByString = DataxParameters.getMapByString(varPool);
+            	int readerNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_READER_NUM, "0"));
+            	int errorNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_ERROR_NUM, "0"));
+            	int avgFlow = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_AVERAGE_FLOW, "0").replace("B/s", ""));
+            	int totalTime = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_TOTAL_TIME, "0").replace("s", ""));
+            	int writeNum = readerNum-errorNum;
+            	int totalSize = avgFlow*totalTime;
+            	
+            	dataXParameters.dealOutParam(varPool);
             	String topicName = dataXParameters.getQueueName();
             	String msgContent = dataXParameters.getMessagejson();
-            	String content = msgContent;
+            	String replace = msgContent.replace("${b_row_num}", ""+writeNum).replace("${b_file_size}", ""+totalSize);
+            	String content = replace;
             	sendNotify(dataXParameters.getGroupId(), topicName, content);
             }
             
