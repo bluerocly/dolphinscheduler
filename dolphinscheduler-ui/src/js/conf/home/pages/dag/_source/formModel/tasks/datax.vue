@@ -150,17 +150,7 @@
           </div>
         </div>
       </m-list-box>
-      <m-list-box>
-        <div slot="text">{{$t('Custom Parameters')}}</div>
-        <div slot="content">
-          <m-local-params
-                  ref="refLocalParams"
-                  @on-local-params="_onLocalParams"
-                  :udp-list="localParams"
-                  :hide="false">
-          </m-local-params>
-        </div>
-      </m-list-box>
+
     </template>
     <m-list-box>
       <div slot="text">{{$t('Running Memory')}}</div>
@@ -219,6 +209,17 @@
               <em class="el-icon-full-screen" @click="setMessageEditorVal"></em>
             </a>
           </div>
+        </div>
+    </m-list-box>
+          <m-list-box>
+        <div slot="text">{{$t('Custom Parameters')}}</div>
+        <div slot="content">
+          <m-local-params
+                  ref="refLocalParams"
+                  @on-local-params="_onLocalParams"
+                  :udp-list="localParams"
+                  :hide="false">
+          </m-local-params>
         </div>
       </m-list-box>
   </div>
@@ -446,6 +447,7 @@
           // storage
           this.$emit('on-params', {
             customConfig: this.customConfig,
+            localParams: this.localParams,
             dsType: this.dsType,
             dataSource: this.rtDatasource,
             dtType: this.dtType,
@@ -623,12 +625,13 @@
           this.jobSpeedRecord = o.params.jobSpeedRecord || 0
           this.preStatements = o.params.preStatements || []
           this.postStatements = o.params.postStatements || []
+          this.localParams = o.params.localParams || []
           
         } else {
           this.customConfig = 1
           this.enable = true
           this.json = o.params.json || []
-          this.localParams = o.params.localParams || ''
+          this.localParams = o.params.localParams || []
         }
         if(o.params.notification){
           this.notification=o.params.notification||false

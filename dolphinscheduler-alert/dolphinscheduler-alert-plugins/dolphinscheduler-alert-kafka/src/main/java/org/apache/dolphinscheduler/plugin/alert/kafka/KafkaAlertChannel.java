@@ -21,6 +21,7 @@ import org.apache.dolphinscheduler.alert.api.AlertChannel;
 import org.apache.dolphinscheduler.alert.api.AlertData;
 import org.apache.dolphinscheduler.alert.api.AlertInfo;
 import org.apache.dolphinscheduler.alert.api.AlertResult;
+import org.apache.dolphinscheduler.spi.utils.StringUtils;
 
 import java.util.Map;
 
@@ -32,8 +33,13 @@ public final class KafkaAlertChannel implements AlertChannel {
         if (alertParams == null || alertParams.size() == 0) {
             return new AlertResult("false", "Kafka alert params is empty");
         }
+        
+        // TODO 每发一次消息 都要new个producer实例？也没有close？
         KafkaSender kafkaSender = new KafkaSender(alertParams);
-        AlertResult alertResult = kafkaSender.sendMessage(alertData.getContent());
-        return alertResult;
+        if(StringUtils.isNotEmpty(alertData.getTitle())) {
+        	return kafkaSender.sendMessage(alertData.getTitle(),alertData.getContent());
+        } else {
+        	return kafkaSender.sendMessage(alertData.getContent());
+        }
     }
 }

@@ -54,8 +54,8 @@ public class TaskConstants {
     public static final String TASK_RECORD_WRITING_SPEED = "task_record_writing_speed";
     public static final String TASK_RECORD_READER_NUM = "task_record_reader_num";
     public static final String TASK_RECORD_WRITING_ERROR_NUM = "task_record_writing_error_num";
-    
-    
+    public static final String TASK_RECORD_WRITING_NUM = "task_record_reader_num";
+    public static final String TASK_RECORD_WRITING_BYTES = "task_record_writing_bytes";
 
     /**
      * comma ,

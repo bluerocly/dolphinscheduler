@@ -107,6 +107,13 @@ public class DataxParameters extends AbstractParameters {
     private int groupId;
     private String messagejson;
     
+    
+    @Override
+    public void dealOutParam(String result) {
+    	// TODO 使用父类，后续根据需求进行处理
+    	super.dealOutParam(result);
+    }
+    
 	public String getFileName() {
 		return fileName;
 	}

@@ -55,15 +55,19 @@ public final class KafkaSender {
         producer = new KafkaProducer<>(kafkaProperties);
         
     }
+    
+    public AlertResult sendMessage(String content) {
+    	return sendMessage(this.topic,content);
+    }
 
     /**
      * Send message to kafka channel
      *
      * @param title title
      * @param content content
-     * @return slack response
+     * @return AlertResult
      */
-    public AlertResult sendMessage(String content) {
+    public AlertResult sendMessage(String topic, String content) {
     	AlertResult alertResult = new AlertResult();
     	alertResult.setStatus("false");
     	try {

@@ -21,30 +21,6 @@ import static org.apache.dolphinscheduler.plugin.datasource.api.utils.PasswordUt
 import static org.apache.dolphinscheduler.spi.task.TaskConstants.EXIT_CODE_FAILURE;
 import static org.apache.dolphinscheduler.spi.task.TaskConstants.RWXR_XR_X;
 
-import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
-import org.apache.dolphinscheduler.plugin.datasource.api.utils.DatasourceUtil;
-import org.apache.dolphinscheduler.plugin.task.api.AbstractTaskExecutor;
-import org.apache.dolphinscheduler.plugin.task.api.ShellCommandExecutor;
-import org.apache.dolphinscheduler.plugin.task.api.TaskResponse;
-import org.apache.dolphinscheduler.plugin.task.util.MapUtils;
-import org.apache.dolphinscheduler.plugin.task.util.OSUtils;
-import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
-import org.apache.dolphinscheduler.spi.enums.DbType;
-import org.apache.dolphinscheduler.spi.enums.Flag;
-import org.apache.dolphinscheduler.spi.task.AbstractParameters;
-import org.apache.dolphinscheduler.spi.task.Property;
-import org.apache.dolphinscheduler.spi.task.TaskAlertInfo;
-import org.apache.dolphinscheduler.spi.task.TaskConstants;
-import org.apache.dolphinscheduler.spi.task.paramparser.ParamUtils;
-import org.apache.dolphinscheduler.spi.task.paramparser.ParameterUtils;
-import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
-import org.apache.dolphinscheduler.spi.task.request.TaskRequest;
-import org.apache.dolphinscheduler.spi.utils.JSONUtils;
-import org.apache.dolphinscheduler.spi.utils.StringUtils;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -64,8 +40,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.dolphinscheduler.plugin.datasource.api.datasource.ftp.FtpConnectionParam;
+import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
+import org.apache.dolphinscheduler.plugin.datasource.api.utils.DatasourceUtil;
+import org.apache.dolphinscheduler.plugin.task.api.AbstractTaskExecutor;
+import org.apache.dolphinscheduler.plugin.task.api.ShellCommandExecutor;
+import org.apache.dolphinscheduler.plugin.task.api.TaskResponse;
+import org.apache.dolphinscheduler.plugin.task.util.MapUtils;
+import org.apache.dolphinscheduler.plugin.task.util.OSUtils;
+import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
+import org.apache.dolphinscheduler.spi.enums.DbType;
+import org.apache.dolphinscheduler.spi.enums.Flag;
+import org.apache.dolphinscheduler.spi.task.AbstractParameters;
+import org.apache.dolphinscheduler.spi.task.Property;
+import org.apache.dolphinscheduler.spi.task.TaskAlertInfo;
+import org.apache.dolphinscheduler.spi.task.TaskConstants;
+import org.apache.dolphinscheduler.spi.task.paramparser.ParamUtils;
+import org.apache.dolphinscheduler.spi.task.paramparser.ParameterUtils;
+import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
+import org.apache.dolphinscheduler.spi.task.request.TaskRequest;
+import org.apache.dolphinscheduler.spi.utils.Constants;
+import org.apache.dolphinscheduler.spi.utils.JSONUtils;
+import org.apache.dolphinscheduler.spi.utils.StringUtils;
 
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
@@ -174,19 +176,45 @@ public class DataxTask extends AbstractTaskExecutor {
             	String varPool = shellCommandExecutor.getVarPool();
             	Map<String, String> mapByString = DataxParameters.getMapByString(varPool);
             	int readerNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_READER_NUM, "0"));
-            	int errorNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_ERROR_NUM, "0"));
-            	int avgFlow = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_AVERAGE_FLOW, "0").replace("B/s", ""));
-            	int totalTime = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_TOTAL_TIME, "0").replace("s", ""));
-            	int writeNum = readerNum-errorNum;
-            	int totalSize = avgFlow*totalTime;
+//            	int errorNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_ERROR_NUM, "0"));
+//            	int avgFlow = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_AVERAGE_FLOW, "0").replace("B/s", ""));
+//            	int totalTime = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_TOTAL_TIME, "0").replace("s", ""));
+            	int writeNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_NUM, "0"));
+            	int writeSize = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_BYTES, "0"));
             	
-            	dataXParameters.dealOutParam(varPool);
+            	if(writeNum == readerNum+1) {
+            		writeNum = readerNum;
+            	}
+            	if(writeNum == 0) {
+                    logger.error("ftpwriter's write num is 0. please check the flow.");
+                    setExitStatusCode(EXIT_CODE_FAILURE);
+//                    throw new Exception("ftpwriter's write num is 0. please check the flow.");
+            	}
             	String topicName = dataXParameters.getQueueName();
             	String msgContent = dataXParameters.getMessagejson();
-            	String replace = msgContent.replace("${b_row_num}", ""+writeNum).replace("${b_file_size}", ""+totalSize);
-            	String content = replace;
-            	sendNotify(dataXParameters.getGroupId(), topicName, content);
+            	
+            	String fileName = dataXParameters.getFileName();
+            	String subdirectory = dataXParameters.getSubdirectory();
+
+            	DataxTaskExecutionContext dataxTaskExecutionContext = taskExecutionContext.getDataxTaskExecutionContext();
+            	FtpConnectionParam dataTargetCfg = (FtpConnectionParam) DatasourceUtil.buildConnectionParams(
+                        DbType.of(dataxTaskExecutionContext.getTargetType()),
+                        dataxTaskExecutionContext.getTargetConnectionParams());
+                String address = dataTargetCfg.getAddress();
+            	Map<String, String> convertMap = ParamUtils.convert(paramsMap);
+            	convertMap.put("b_row_num", ""+writeNum);
+            	convertMap.put("b_file_size", ""+writeSize);
+            	convertMap.put("b_uuid", UUID.randomUUID().toString());
+            	convertMap.put("b_ftp_info", address);
+            	convertMap.put("b_dir_info", subdirectory);
+            	fileName = ParameterUtils.convertParameterPlaceholders(fileName, convertMap);
+            	convertMap.put("b_file_name", fileName);
+                // replace placeholder
+            	msgContent = ParameterUtils.convertParameterPlaceholders(msgContent, convertMap);
+            	logger.info("send msgContent [{}]" , msgContent);
+            	sendNotify(dataXParameters.getGroupId(), topicName, msgContent);
             }
+            dataXParameters.dealOutParam(varPool);
             
         } catch (Exception e) {
             setExitStatusCode(EXIT_CODE_FAILURE);
@@ -369,7 +397,7 @@ public class DataxTask extends AbstractTaskExecutor {
                 DbType.of(dataxTaskExecutionContext.getSourcetype()),
                 dataxTaskExecutionContext.getSourceConnectionParams());
 
-        BaseConnectionParam dataTargetCfg = (BaseConnectionParam) DatasourceUtil.buildConnectionParams(
+        FtpConnectionParam dataTargetCfg = (FtpConnectionParam) DatasourceUtil.buildConnectionParams(
                 DbType.of(dataxTaskExecutionContext.getTargetType()),
                 dataxTaskExecutionContext.getTargetConnectionParams());
 
@@ -395,24 +423,27 @@ public class DataxTask extends AbstractTaskExecutor {
         reader.put("name", DataxUtils.getReaderPluginName(DbType.of(dataxTaskExecutionContext.getSourcetype())));
         reader.set("parameter", readerParam);
 
-//        List<ObjectNode> writerConnArr = new ArrayList<>();
-//        ObjectNode writerConn = JSONUtils.createObjectNode();
-//        ArrayNode tableArr = writerConn.putArray("table");
-//        tableArr.add(dataXParameters.getTargetTable());
 
-//        writerConn.put("jdbcUrl", DatasourceUtil.getJdbcUrl(DbType.valueOf(dataXParameters.getDtType()), dataTargetCfg));
-//        writerConnArr.add(writerConn);
-
+        String address = dataTargetCfg.getAddress();
+        
+        String protocol = address.split(Constants.COLON)[0];
+        String[] hostPort = address.split(Constants.AT_SIGN);
+        String[] hostPortArray = hostPort[hostPort.length - 1].split(Constants.COLON);
+        String host = hostPortArray[0];
+        String port = hostPortArray[1];
+        String subdirectory = dataXParameters.getSubdirectory();
+        String fileName = dataXParameters.getFileName();
+        
         ObjectNode writerParam = JSONUtils.createObjectNode();
-        writerParam.put("protocol", "sftp");
-        writerParam.put("host", "10.10.80.70");
-        writerParam.put("port", "22");
+        writerParam.put("protocol", protocol);
+        writerParam.put("host", host);
+        writerParam.put("port", port);
         writerParam.put("username", dataTargetCfg.getUser());
         writerParam.put("password", decodePassword(dataTargetCfg.getPassword()));
         writerParam.put("timeout", "60000");
         writerParam.put("connectPattern", "PASV");
-        writerParam.put("path", "/home/tong/testlij/dxfile");
-        writerParam.put("fileName", "test222");
+        writerParam.put("path", subdirectory);
+        writerParam.put("fileName", fileName);
         
         writerParam.put("writeMode", "truncate");
         writerParam.put("fieldDelimiter", "|");
@@ -422,24 +453,6 @@ public class DataxTask extends AbstractTaskExecutor {
         writerParam.put("fileFormat", "csv");
         writerParam.put("suffix", ".csv");
         writerParam.putArray("header");
-
-
-//        writerParam.putArray("connection").addAll(writerConnArr);
-
-//        if (CollectionUtils.isNotEmpty(dataXParameters.getPreStatements())) {
-//            ArrayNode preSqlArr = writerParam.putArray("preSql");
-//            for (String preSql : dataXParameters.getPreStatements()) {
-//                preSqlArr.add(preSql);
-//            }
-//
-//        }
-
-//        if (CollectionUtils.isNotEmpty(dataXParameters.getPostStatements())) {
-//            ArrayNode postSqlArr = writerParam.putArray("postSql");
-//            for (String postSql : dataXParameters.getPostStatements()) {
-//                postSqlArr.add(postSql);
-//            }
-//        }
 
         ObjectNode writer = JSONUtils.createObjectNode();
         writer.put("name", DataxUtils.getWriterPluginName(DbType.of(dataxTaskExecutionContext.getTargetType())));

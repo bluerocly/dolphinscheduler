@@ -49,8 +49,8 @@ public class FtpDatasourceProcessor extends AbstractDatasourceProcessor {
         String hostSeperator = Constants.AT_SIGN;
         String[] hostPort = connectionParams.getAddress().split(hostSeperator);
         String[] hostPortArray = hostPort[hostPort.length - 1].split(Constants.COLON);
-        ftpDatasourceParamDTO.setPort(Integer.parseInt(hostPortArray[0]));
-        ftpDatasourceParamDTO.setHost(hostPortArray[1]);
+        ftpDatasourceParamDTO.setHost(hostPortArray[0]);
+        ftpDatasourceParamDTO.setPort(Integer.parseInt(hostPortArray[1]));
         return ftpDatasourceParamDTO;
     }
 
