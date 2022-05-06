@@ -21,6 +21,9 @@ import org.apache.dolphinscheduler.api.enums.Status;
 import org.apache.dolphinscheduler.api.service.DataSourceService;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
+import org.apache.dolphinscheduler.api.utils.ftp.FtpHelper;
+import org.apache.dolphinscheduler.api.utils.ftp.SftpHelper;
+import org.apache.dolphinscheduler.api.utils.ftp.StandardFtpHelper;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.entity.DataSource;
@@ -28,6 +31,7 @@ import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.DataSourceMapper;
 import org.apache.dolphinscheduler.dao.mapper.DataSourceUserMapper;
 import org.apache.dolphinscheduler.plugin.datasource.api.datasource.BaseDataSourceParamDTO;
+import org.apache.dolphinscheduler.plugin.datasource.api.datasource.BaseFtpConnectionParam;
 import org.apache.dolphinscheduler.plugin.datasource.api.plugin.DataSourceClientProvider;
 import org.apache.dolphinscheduler.plugin.datasource.api.utils.DatasourceUtil;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
@@ -306,58 +310,88 @@ public class DataSourceServiceImpl extends BaseServiceImpl implements DataSource
         return result;
     }
 
-    /**
-     * check connection
-     *
-     * @param type data source type
-     * @param connectionParam connectionParam
-     * @return true if connect successfully, otherwise false
-     * @return true if connect successfully, otherwise false
-     */
-    @Override
-    public Result<Object> checkConnection(DbType type, ConnectionParam connectionParam) {
-        Result<Object> result = new Result<>();
-        if(DbType.FTP.equals(type)) {
-        	// TODO 测试ftp连接
-            putMsg(result, Status.SUCCESS);
-            return result;
-        }
-        
-        try (Connection connection = DataSourceClientProvider.getInstance().getConnection(type, connectionParam)) {
-            if (connection == null) {
-                putMsg(result, Status.CONNECTION_TEST_FAILURE);
-                return result;
-            }
-            putMsg(result, Status.SUCCESS);
-            return result;
-        } catch (Exception e) {
-            logger.error("datasource test connection error, dbType:{}, connectionParam:{}, message:{}.", type, connectionParam, e.getMessage());
-            return new Result<>(Status.CONNECTION_TEST_FAILURE.getCode(), e.getMessage());
-        }
-    }
 
-    /**
-     * test connection
-     *
-     * @param id datasource id
-     * @return connect result code
-     */
-    @Override
-    public Result<Object> connectionTest(int id) {
-        DataSource dataSource = dataSourceMapper.selectById(id);
-        if (dataSource == null) {
-            Result<Object> result = new Result<>();
-            putMsg(result, Status.RESOURCE_NOT_EXIST);
-            return result;
-        }
-        if(DbType.FTP.equals(dataSource.getType())) {
-        	Result<Object> result = new Result<>();
-        	// TODO 测试ftp连接
-            putMsg(result, Status.SUCCESS);
-            return result;
-        }
-        return checkConnection(dataSource.getType(), DatasourceUtil.buildConnectionParams(dataSource.getType(), dataSource.getConnectionParams()));
-    }
+	/**
+	 * check connection
+	 *
+	 * @param type            data source type
+	 * @param connectionParam connectionParam
+	 * @return true if connect successfully, otherwise false
+	 * @return true if connect successfully, otherwise false
+	 */
+	@Override
+	public Result<Object> checkConnection(DbType type, ConnectionParam connectionParam) {
+		if (DbType.FTP.equals(type)) {
+			return checkFtpConnection(type,connectionParam);
+		} else {
+			try (Connection connection = DataSourceClientProvider.getInstance().getConnection(type, connectionParam)) {
+				Result<Object> result = new Result<>();
+				if (connection == null) {
+					putMsg(result, Status.CONNECTION_TEST_FAILURE);
+					return result;
+				}
+				putMsg(result, Status.SUCCESS);
+				return result;
+			} catch (Exception e) {
+				logger.error("datasource test connection error, dbType:{}, connectionParam:{}, message:{}.", type,
+						connectionParam, e.getMessage());
+				return new Result<>(Status.CONNECTION_TEST_FAILURE.getCode(), e.getMessage());
+			}
+		}
+
+	}
+
+	private Result<Object> checkFtpConnection(DbType type, ConnectionParam connectionParam) {
+		Result<Object> result = new Result<>();
+		BaseFtpConnectionParam ftpConnectionParam = (BaseFtpConnectionParam) connectionParam;
+		FtpHelper ftpHelper = null;
+		String connectPattern = "";
+		int timeout = 60000;
+		String address = ftpConnectionParam.getAddress();
+		String protocol = address.split(Constants.COLON)[0];
+		String[] hostPort = address.split(Constants.AT_SIGN);
+		String[] hostPortArray = hostPort[hostPort.length - 1].split(Constants.COLON);
+		String host = hostPortArray[0];
+		int port = Integer.valueOf(hostPortArray[1]);
+		String username = ftpConnectionParam.getUser();
+		String password = ftpConnectionParam.getPassword();
+		if ("sftp".equals(protocol)) {
+			// sftp协议
+			ftpHelper = new SftpHelper();
+		} else if ("ftp".equals(protocol)) {
+			// ftp 协议
+			connectPattern = "PASV";// 默认为被动模式
+			ftpHelper = new StandardFtpHelper();
+		}
+		try {
+			ftpHelper.loginFtpServer(host, username, password, port, timeout, connectPattern);
+			ftpHelper.logoutFtpServer();
+		} catch (Exception e) {
+			logger.error("ftp test connection error, dbType:{}, connectionParam:{}, message:{}.", type,
+					connectionParam, e.getMessage());
+			return new Result<>(Status.CONNECTION_TEST_FAILURE.getCode(), e.getMessage());
+		}
+		putMsg(result, Status.SUCCESS);
+		return result;
+	}
+
+	/**
+	 * test connection
+	 *
+	 * @param id datasource id
+	 * @return connect result code
+	 */
+	@Override
+	public Result<Object> connectionTest(int id) {
+		DataSource dataSource = dataSourceMapper.selectById(id);
+		if (dataSource == null) {
+			Result<Object> result = new Result<>();
+			putMsg(result, Status.RESOURCE_NOT_EXIST);
+			return result;
+		}
+		return checkConnection(dataSource.getType(),
+				DatasourceUtil.buildConnectionParams(dataSource.getType(), dataSource.getConnectionParams()));
+	}
 
     /**
      * delete datasource
