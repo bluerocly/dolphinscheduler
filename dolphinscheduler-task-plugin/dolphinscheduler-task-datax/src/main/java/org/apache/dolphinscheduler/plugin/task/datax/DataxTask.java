@@ -97,6 +97,12 @@ public class DataxTask extends AbstractTaskExecutor {
      */
     private static final String DATAX_PATH = "${DATAX_HOME}/bin/datax.py";
     private static final String DATAX_PATH_WIN = "%DATAX_HOME%/bin/datax.py";
+    
+    private static final String S_ROW_NUM = "s_row_num";
+    private static final String S_FILE_SIZE = "s_file_size";
+    private static final String S_UUID = "s_uuid";
+    private static final String S_FTP_INFO = "s_ftp_info";
+    
     /**
      * datax channel count
      */
@@ -193,22 +199,16 @@ public class DataxTask extends AbstractTaskExecutor {
             	String topicName = dataXParameters.getQueueName();
             	String msgContent = dataXParameters.getMessagejson();
             	
-            	String fileName = dataXParameters.getFileName();
-            	String subdirectory = dataXParameters.getSubdirectory();
-
             	DataxTaskExecutionContext dataxTaskExecutionContext = taskExecutionContext.getDataxTaskExecutionContext();
             	FtpConnectionParam dataTargetCfg = (FtpConnectionParam) DatasourceUtil.buildConnectionParams(
                         DbType.of(dataxTaskExecutionContext.getTargetType()),
                         dataxTaskExecutionContext.getTargetConnectionParams());
                 String address = dataTargetCfg.getAddress();
             	Map<String, String> convertMap = ParamUtils.convert(paramsMap);
-            	convertMap.put("b_row_num", ""+writeNum);
-            	convertMap.put("b_file_size", ""+writeSize);
-            	convertMap.put("b_uuid", UUID.randomUUID().toString());
-            	convertMap.put("b_ftp_info", address);
-            	convertMap.put("b_dir_info", subdirectory);
-            	fileName = ParameterUtils.convertParameterPlaceholders(fileName, convertMap);
-            	convertMap.put("b_file_name", fileName);
+            	convertMap.put(S_ROW_NUM, ""+writeNum);
+            	convertMap.put(S_FILE_SIZE, ""+writeSize);
+            	convertMap.put(S_UUID, UUID.randomUUID().toString());
+            	convertMap.put(S_FTP_INFO, address);
                 // replace placeholder
             	msgContent = ParameterUtils.convertParameterPlaceholders(msgContent, convertMap);
             	logger.info("send msgContent [{}]" , msgContent);
