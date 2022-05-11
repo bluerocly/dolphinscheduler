@@ -210,8 +210,9 @@ public class DataxTask extends AbstractTaskExecutor {
             	convertMap.put(S_UUID, UUID.randomUUID().toString());
             	convertMap.put(S_FTP_INFO, address);
                 // replace placeholder
+            	topicName = ParameterUtils.convertParameterPlaceholders(topicName, convertMap);
             	msgContent = ParameterUtils.convertParameterPlaceholders(msgContent, convertMap);
-            	logger.info("send msgContent [{}]" , msgContent);
+            	logger.info("send topicName[{}], msgContent [{}] to alert." , topicName, msgContent);
             	sendNotify(dataXParameters.getGroupId(), topicName, msgContent);
             }
             dataXParameters.dealOutParam(varPool);
