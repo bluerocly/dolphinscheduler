@@ -238,7 +238,7 @@
         testLoading: false,
         showPrincipal: true,
         showDatabase: false,
-        showDatabaseInfo: false,
+        showDatabaseInfo: true,
         showConnectType: false,
         showFtpConnectType: false,
         isShowPrincipal: true,
