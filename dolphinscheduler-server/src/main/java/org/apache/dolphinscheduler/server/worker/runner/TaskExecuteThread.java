@@ -17,6 +17,24 @@
 
 package org.apache.dolphinscheduler.server.worker.runner;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Delayed;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.enums.Event;
 import org.apache.dolphinscheduler.common.enums.ExecutionStatus;
@@ -44,22 +62,6 @@ import org.apache.dolphinscheduler.spi.task.TaskChannel;
 import org.apache.dolphinscheduler.spi.task.TaskConstants;
 import org.apache.dolphinscheduler.spi.task.TaskExecutionContextCacheManager;
 import org.apache.dolphinscheduler.spi.task.request.TaskRequest;
-
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Delayed;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -259,6 +261,9 @@ public class TaskExecuteThread implements Runnable, Delayed {
     private Map<String, String> getGlobalParamsMap() {
         Map<String, String> globalParamsMap = new HashMap<>(16);
 
+        // set env params by lij
+        setEnvParams(globalParamsMap);
+        
         // global params string
         String globalParamsStr = taskExecutionContext.getGlobalParams();
         if (globalParamsStr != null) {
@@ -266,6 +271,31 @@ public class TaskExecuteThread implements Runnable, Delayed {
             globalParamsMap.putAll(globalParamsList.stream().collect(Collectors.toMap(Property::getProp, Property::getValue)));
         }
         return globalParamsMap;
+    }
+    
+    //add by lij 增加环境变量
+    private void setEnvParams(Map<String, String> globalParamsMap) {
+        String environmentConfig = taskExecutionContext.getEnvironmentConfig();
+        if(StringUtils.isNotEmpty(environmentConfig)) {
+        	Properties p = new Properties();
+        	String[] envParams = environmentConfig.split("export ");
+            try {
+				for(String envParam : envParams) {
+	        		p.load(new StringReader(envParam));
+	        	}
+				Iterator<Entry<Object, Object>> it = p.entrySet().iterator();
+				while(it.hasNext())
+				{
+					Entry<Object, Object> entry = it.next();
+					if(((String)entry.getKey()).startsWith("CS_")) {
+						globalParamsMap.put((String)entry.getKey(), (String)entry.getValue());
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+        }
+        
     }
 
     /**

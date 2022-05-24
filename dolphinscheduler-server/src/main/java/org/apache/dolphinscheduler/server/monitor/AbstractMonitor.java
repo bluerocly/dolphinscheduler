@@ -58,10 +58,10 @@ public abstract class AbstractMonitor implements Monitor {
         String type = path.split("/")[2];
         String serverName = null;
         String nodes = null;
-        if ("masters".equals(type)){
+        if ("master".equals(type)){
             serverName = "master-server";
             nodes = runConfig.getMasters();
-        }else if ("workers".equals(type)){
+        }else if ("worker".equals(type)){
             serverName = "worker-server";
             nodes = runConfig.getWorkers();
         }
@@ -70,10 +70,11 @@ public abstract class AbstractMonitor implements Monitor {
 
         Set<String> needRestartServer = getNeedRestartServer(getRunConfigServer(nodes),
                 activeNodeMap.keySet());
-
+        logger.info("needRestartServer {}.",needRestartServer);
         for (String node : needRestartServer){
             // os.system('ssh -p ' + ssh_port + ' ' + self.get_ip_by_hostname(master) + ' sh ' + install_path + '/bin/dolphinscheduler-daemon.sh start master-server')
             String runCmd = "ssh -p " + port + " " +  node + " sh "  + installPath + "/bin/dolphinscheduler-daemon.sh start " + serverName;
+            logger.info("restart runCmd[{}]", runCmd);
             Runtime.getRuntime().exec(runCmd);
         }
     }
@@ -93,7 +94,9 @@ public abstract class AbstractMonitor implements Monitor {
 
         result.addAll(deployedNodes);
         result.removeAll(activeNodes);
-
+        logger.info("deployedNodes: {}", deployedNodes);
+        logger.info("activeNodes: {}", activeNodes);
+        logger.info("NeedRestartServer: {}", result);
         return result;
     }
 
@@ -109,7 +112,7 @@ public abstract class AbstractMonitor implements Monitor {
             return null;
         }
 
-        String[] nodeArr = nodes.split(",");
+        String[] nodeArr = nodes.replaceAll("\"", "").split(",");
 
         for (String node : nodeArr){
             nodeSet.add(node);

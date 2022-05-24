@@ -16,6 +16,8 @@
  */
 package org.apache.dolphinscheduler.server.monitor;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +25,19 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 
 /**
  *  monitor server
  */
-@ComponentScan("org.apache.dolphinscheduler")
+@ComponentScan(value = "org.apache.dolphinscheduler", excludeFilters = {
+	    @ComponentScan.Filter(type = FilterType.REGEX, pattern = {
+	        "org.apache.dolphinscheduler.server.worker.*",
+	        "org.apache.dolphinscheduler.server.master.*",
+	        "org.apache.dolphinscheduler.server.log.*",
+	        "org.apache.dolphinscheduler.alert.*"
+	    })
+	})
 public class MonitorServer implements CommandLineRunner {
 
     private static final Integer ARGS_LENGTH = 4;
@@ -49,8 +59,8 @@ public class MonitorServer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (args.length != ARGS_LENGTH){
-            logger.error("Usage: <masterPath> <workerPath> <port> <installPath>");
+        if (args.length < ARGS_LENGTH){
+            logger.error("Usage: <masterPath> <workerPath> <port> <installPath> <sleepSecond>");
             return;
         }
 
@@ -58,6 +68,15 @@ public class MonitorServer implements CommandLineRunner {
         String workerPath = args[1];
         Integer port = Integer.parseInt(args[2]);
         String installPath = args[3];
+        int sleepSecond = 0;
+        if(args.length == ARGS_LENGTH + 1) {
+        	sleepSecond = Integer.parseInt(args[4]);
+        }
         monitor.monitor(masterPath,workerPath,port,installPath);
+        while(sleepSecond > 0) {
+        	TimeUnit.SECONDS.sleep(sleepSecond);
+        	monitor.monitor(masterPath,workerPath,port,installPath);
+        }
+        System.exit(0);
     }
 }

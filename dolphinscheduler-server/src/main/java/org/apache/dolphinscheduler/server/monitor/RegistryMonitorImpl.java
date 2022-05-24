@@ -45,7 +45,7 @@ public class RegistryMonitorImpl extends AbstractMonitor {
         }
 
         for (String child : childrenList) {
-            maps.put(child.split("_")[0], child);
+            maps.put(child.split(":")[0], child);
         }
 
         return maps;
