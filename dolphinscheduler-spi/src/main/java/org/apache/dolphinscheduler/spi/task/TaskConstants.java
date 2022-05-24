@@ -46,6 +46,8 @@ public class TaskConstants {
     public static final String TASK_DATAX_RECORD_WRITING_SPEED_SUFFIX = "记录写入速度";
     public static final String TASK_DATAX_RECORD_READER_NUM_SUFFIX = "读出记录总数";
     public static final String TASK_DATAX_RECORD_WRITING_ERROR_NUM_SUFFIX = "读写失败总数";
+    public static final String TASK_DATAX_RECORD_WRITING_NUM_SUFFIX = "记录写入总数";
+    public static final String TASK_DATAX_RECORD_WRITING_BYTES_SUFFIX = "记录写入大小";
     
     public static final String TASK_START_TIME = "task_start_time";
     public static final String TASK_END_TIME = "task_end_time";
@@ -54,7 +56,7 @@ public class TaskConstants {
     public static final String TASK_RECORD_WRITING_SPEED = "task_record_writing_speed";
     public static final String TASK_RECORD_READER_NUM = "task_record_reader_num";
     public static final String TASK_RECORD_WRITING_ERROR_NUM = "task_record_writing_error_num";
-    public static final String TASK_RECORD_WRITING_NUM = "task_record_reader_num";
+    public static final String TASK_RECORD_WRITING_NUM = "task_record_writing_num";
     public static final String TASK_RECORD_WRITING_BYTES = "task_record_writing_bytes";
 
     /**

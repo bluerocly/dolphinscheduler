@@ -331,6 +331,10 @@ public abstract class AbstractCommandExecutor {
                     	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_READER_NUM,subResult(line)));
                     } else if (line.contains(TaskConstants.TASK_DATAX_RECORD_WRITING_ERROR_NUM_SUFFIX)) {
                     	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_WRITING_ERROR_NUM,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_RECORD_WRITING_NUM_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_WRITING_NUM,subResult(line)));
+                    } else if (line.contains(TaskConstants.TASK_DATAX_RECORD_WRITING_BYTES_SUFFIX)) {
+                    	varPool.append(String.format("%s=%s$VarPool$", TaskConstants.TASK_RECORD_WRITING_BYTES,subResult(line)));
                     }
                 	
                     if (line.startsWith("${setValue(")) {
