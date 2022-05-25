@@ -120,6 +120,18 @@
           </el-input>
         </div>
       </m-list-box>
+
+      <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('FTP file suffix')}}</div>
+        <div slot="content">
+          <el-input
+            type="input"
+            size="small"
+            v-model="ftpFileSuffix"
+            :placeholder="$t('FTP file suffix example')">
+          </el-input>
+        </div>
+      </m-list-box>      
             
       <m-list-box v-if="dtType!='FTP'">
         <div slot="text">{{$t('TargetTable')}}</div>
@@ -325,6 +337,7 @@
         fieldDelimiter:"",
 		ftpEncoding:"",
 		ftpHeader:"",
+		ftpFileSuffix:"",
         notification:false,
         queueName:'',
         groupId:null
@@ -504,6 +517,7 @@
             fieldDelimiter: this.fieldDelimiter,
 			ftpEncoding: this.ftpEncoding,
 			ftpHeader: this.ftpHeader,
+			ftpFileSuffix: this.ftpFileSuffix,
             notification:this.notification,
             queueName:this.queueName,
             groupId:this.groupId,
@@ -617,6 +631,7 @@
           fieldDelimiter: this.fieldDelimiter,
 		  ftpEncoding: this.ftpEncoding,
 		  ftpHeader: this.ftpHeader,
+		  ftpFileSuffix: this.ftpFileSuffix,
           subdirectory:this.subdirectory,
           notification:this.notification,
           queueName:this.queueName,
@@ -662,6 +677,7 @@
           this.fieldDelimiter=o.params.fieldDelimiter||""
           this.ftpEncoding=o.params.ftpEncoding||""
           this.ftpHeader=o.params.ftpHeader||""
+          this.ftpFileSuffix=o.params.ftpFileSuffix||""
           this.subdirectory=o.params.subdirectory||""
           this.dsType = o.params.dsType || ''
           this.datasource = o.params.dataSource || ''
@@ -737,6 +753,7 @@
           this.fieldDelimiter="";
           this.ftpEncoding="";
           this.ftpHeader="";
+          this.ftpFileSuffix="";
           this.subdirectory="";
         }
       },

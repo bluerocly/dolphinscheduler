@@ -104,6 +104,7 @@ public class DataxParameters extends AbstractParameters {
     private String fieldDelimiter;
     private String ftpEncoding;
     private String ftpHeader;
+    private String ftpFileSuffix;
     private String subdirectory;
     private Boolean notification;
     private String queueName;
@@ -117,6 +118,18 @@ public class DataxParameters extends AbstractParameters {
     	super.dealOutParam(result);
     }
     
+	public String getFtpFileSuffix() {
+		return ftpFileSuffix;
+	}
+
+
+
+	public void setFtpFileSuffix(String ftpFileSuffix) {
+		this.ftpFileSuffix = ftpFileSuffix;
+	}
+
+
+
 	public String getFileName() {
 		return fileName;
 	}
