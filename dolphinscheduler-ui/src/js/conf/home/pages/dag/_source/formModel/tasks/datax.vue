@@ -85,6 +85,42 @@
         </div>
       </m-list-box>
 
+     <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('FTP Field Delimiter')}}</div>
+        <div slot="content">
+          <el-input
+            type="input"
+            size="small"
+            v-model="fieldDelimiter"
+            :placeholder="$t('FTP Field Delimiter example')">
+          </el-input>
+        </div>
+      </m-list-box>
+      
+     <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('FTP Encoding')}}</div>
+        <div slot="content">
+          <el-input
+            type="input"
+            size="small"
+            v-model="ftpEncoding"
+            :placeholder="$t('FTP Encoding example')">
+          </el-input>
+        </div>
+      </m-list-box>
+      
+      <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('FTP header')}}</div>
+        <div slot="content">
+          <el-input
+            type="input"
+            size="small"
+            v-model="ftpHeader"
+            :placeholder="$t('FTP header example')">
+          </el-input>
+        </div>
+      </m-list-box>
+            
       <m-list-box v-if="dtType!='FTP'">
         <div slot="text">{{$t('TargetTable')}}</div>
         <div slot="content">
@@ -286,6 +322,9 @@
         subdirectory:"",
         //File Name
         fileName:"",
+        fieldDelimiter:"",
+		ftpEncoding:"",
+		ftpHeader:"",
         notification:false,
         queueName:'',
         groupId:null
@@ -460,8 +499,11 @@
             postStatements: this.postStatements,
             xms: +this.xms,
             xmx: +this.xmx,
-            fileName:this.fileName,
-            subdirectory:this.subdirectory,
+            fileName: this.fileName,
+            subdirectory: this.subdirectory,
+            fieldDelimiter: this.fieldDelimiter,
+			ftpEncoding: this.ftpEncoding,
+			ftpHeader: this.ftpHeader,
             notification:this.notification,
             queueName:this.queueName,
             groupId:this.groupId,
@@ -571,7 +613,10 @@
           postStatements: this.postStatements,
           xms: +this.xms,
           xmx: +this.xmx,
-          fileName:this.fileName,
+          fileName: this.fileName,
+          fieldDelimiter: this.fieldDelimiter,
+		  ftpEncoding: this.ftpEncoding,
+		  ftpHeader: this.ftpHeader,
           subdirectory:this.subdirectory,
           notification:this.notification,
           queueName:this.queueName,
@@ -614,6 +659,9 @@
           this.customConfig = 0
           this.enable = false
           this.fileName=o.params.fileName||""
+          this.fieldDelimiter=o.params.fieldDelimiter||""
+          this.ftpEncoding=o.params.ftpEncoding||""
+          this.ftpHeader=o.params.ftpHeader||""
           this.subdirectory=o.params.subdirectory||""
           this.dsType = o.params.dsType || ''
           this.datasource = o.params.dataSource || ''
@@ -686,6 +734,9 @@
           this.postStatements="";
         }else{
           this.fileName="";
+          this.fieldDelimiter="";
+          this.ftpEncoding="";
+          this.ftpHeader="";
           this.subdirectory="";
         }
       },

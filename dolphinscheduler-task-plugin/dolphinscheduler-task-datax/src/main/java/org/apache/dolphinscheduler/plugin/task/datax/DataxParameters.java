@@ -101,6 +101,9 @@ public class DataxParameters extends AbstractParameters {
     private int xmx;
     
     private String fileName;
+    private String fieldDelimiter;
+    private String ftpEncoding;
+    private String ftpHeader;
     private String subdirectory;
     private Boolean notification;
     private String queueName;
@@ -120,6 +123,30 @@ public class DataxParameters extends AbstractParameters {
 
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
+	}
+	
+	public String getFieldDelimiter() {
+		return fieldDelimiter;
+	}
+
+	public void setFieldDelimiter(String fieldDelimiter) {
+		this.fieldDelimiter = fieldDelimiter;
+	}
+
+	public String getFtpEncoding() {
+		return ftpEncoding;
+	}
+
+	public void setFtpEncoding(String ftpEncoding) {
+		this.ftpEncoding = ftpEncoding;
+	}
+
+	public String getFtpHeader() {
+		return ftpHeader;
+	}
+
+	public void setFtpHeader(String ftpHeader) {
+		this.ftpHeader = ftpHeader;
 	}
 
 	public String getSubdirectory() {

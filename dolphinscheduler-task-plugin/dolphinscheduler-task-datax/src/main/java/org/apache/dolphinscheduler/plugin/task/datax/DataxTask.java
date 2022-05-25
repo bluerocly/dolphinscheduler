@@ -434,6 +434,25 @@ public class DataxTask extends AbstractTaskExecutor {
         String port = hostPortArray[1];
         String subdirectory = dataXParameters.getSubdirectory();
         String fileName = dataXParameters.getFileName();
+        String fieldDelimiter = dataXParameters.getFieldDelimiter();
+        if(StringUtils.isEmpty(fieldDelimiter)) {
+        	fieldDelimiter = "|";
+        }
+        String ftpEncoding = dataXParameters.getFtpEncoding();
+        if(StringUtils.isEmpty(ftpEncoding)) {
+        	ftpEncoding = "UTF-8";
+        }
+        String ftpHeader = dataXParameters.getFtpHeader();
+        String[] ftpHeaderColumns = null;
+        if(StringUtils.isEmpty(ftpHeader)) {
+        	ftpHeaderColumns = new String[0];
+        } else if("*".equals(ftpHeader)) {
+        	ftpHeaderColumns = parsingSqlColumnNames(DbType.of(dataxTaskExecutionContext.getSourcetype()),
+                    DbType.of(dataxTaskExecutionContext.getTargetType()),
+                    dataSourceCfg, dataXParameters.getSql());
+        } else {
+        	ftpHeaderColumns = ftpHeader.split(",");
+        }
         
         ObjectNode writerParam = JSONUtils.createObjectNode();
         writerParam.put("protocol", protocol);
@@ -447,13 +466,17 @@ public class DataxTask extends AbstractTaskExecutor {
         writerParam.put("fileName", fileName);
         
         writerParam.put("writeMode", "truncate");
-        writerParam.put("fieldDelimiter", "|");
-        writerParam.put("encoding", "UTF-8");
-        writerParam.put("nullFormat", "null");
-        writerParam.put("dateFormat", "yyyy-MM-dd");
+        writerParam.put("fieldDelimiter",fieldDelimiter);
+        writerParam.put("encoding", ftpEncoding);
+        writerParam.put("nullFormat", "");
+//        writerParam.put("dateFormat", "yyyy-MM-dd");
         writerParam.put("fileFormat", "csv");
         writerParam.put("suffix", ".csv");
-        writerParam.putArray("header");
+        
+        ArrayNode headerArr = writerParam.putArray("header");
+        for (String headerColumn : ftpHeaderColumns) {
+        	headerArr.add(headerColumn);
+        }
 
         ObjectNode writer = JSONUtils.createObjectNode();
         writer.put("name", DataxUtils.getWriterPluginName(DbType.of(dataxTaskExecutionContext.getTargetType())));
