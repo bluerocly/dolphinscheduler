@@ -166,9 +166,19 @@
                     <groupId>org.apache.curator</groupId>
                     <artifactId>curator-client</artifactId>
                 </exclusion>
+                <exclusion>
+                	<groupId>com.jcraft</groupId>
+                	<artifactId>jsch</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
-
+        
+		<dependency>
+		   <groupId>com.jcraft</groupId>
+		   <artifactId>jsch</artifactId>
+		   <version>0.1.54</version>
+		</dependency>
+		
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>

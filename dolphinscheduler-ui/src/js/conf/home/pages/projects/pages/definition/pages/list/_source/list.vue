@@ -37,6 +37,13 @@
             {{_rtPublishStatus(scope.row.releaseState)}}
           </template>
         </el-table-column>
+        <el-table-column :label="$t('Timing state')">
+          <template slot-scope="scope">
+            <span v-if="scope.row.scheduleReleaseState === 'OFFLINE'" class="time_offline">{{$t('offline')}}</span>
+            <span v-if="scope.row.scheduleReleaseState === 'ONLINE'" class="time_online">{{$t('online')}}</span>
+            <span v-if="!scope.row.scheduleReleaseState">-</span>
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('Create Time')" width="135">
           <template slot-scope="scope">
             <span>{{scope.row.createTime | formatDate}}</span>
@@ -54,13 +61,6 @@
         </el-table-column>
         <el-table-column prop="userName" :label="$t('Create User')"></el-table-column>
         <el-table-column prop="modifyBy" :label="$t('Modify User')"></el-table-column>
-        <el-table-column :label="$t('Timing state')">
-          <template slot-scope="scope">
-            <span v-if="scope.row.scheduleReleaseState === 'OFFLINE'" class="time_offline">{{$t('offline')}}</span>
-            <span v-if="scope.row.scheduleReleaseState === 'ONLINE'" class="time_online">{{$t('online')}}</span>
-            <span v-if="!scope.row.scheduleReleaseState">-</span>
-          </template>
-        </el-table-column>
         <el-table-column :label="$t('Operation')" width="335" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('Edit')" placement="top" :enterable="false">
