@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.dolphinscheduler.common.Constants;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.entity.CommandPush;
@@ -28,10 +29,11 @@ import org.springframework.stereotype.Service;
 public class MessageCommandConsumer {
     private static final Logger logger = LoggerFactory.getLogger(MessageCommandConsumer.class);
     
-    public static final String header_type = "message_type";
+    public static final String header_msg_type = "message_type";
     public static final String msg_data_name = "kpiGroupName";
     public static final String msg_data_time = "dataTime";
     public static final String msg_data_period = "dataPeriod";
+    public static final String body_msg_type = "msgtype";
     
     /**
      * processService
@@ -49,17 +51,17 @@ public class MessageCommandConsumer {
 				String value = new String(header.value());
 				headerMap.put(key, value);
 			}
-			String msg_type = headerMap.get(header_type);
-			if(StringUtils.isNotEmpty(msg_type) ) {
-				
-			}
+			String msg_type = headerMap.get(header_msg_type);
 			int partitionId = record.partition();
 			long offset = record.offset();
 			String body = record.value();
+			if(StringUtils.isEmpty(msg_type) ) {
+				msg_type = JSONUtils.getNodeStringNoDoubleQuotes(body, body_msg_type);	
+			}
 			MessageTypeEnum msgType = MessageTypeEnum.getMessageTypeEnum(msg_type);
 			Set<String> dataNameSet = new HashSet<>();
-			String dataTimeStr = JSONUtils.getNodeString(body, msg_data_time);	
-			String dataPeriodStr = JSONUtils.getNodeString(body, msg_data_period);	
+			String dataTimeStr = JSONUtils.getNodeStringNoDoubleQuotes(body, msg_data_time);
+			String dataPeriodStr = JSONUtils.getNodeStringNoDoubleQuotes(body, msg_data_period);	
 	        switch (msgType) {
 	        case dbinsert_message:
 	        	dataNameSet = getDataNameSetDbInsert(body);
@@ -122,14 +124,14 @@ public class MessageCommandConsumer {
 
 	private Set<String> getDataNameSetDbIntegrity(String body) {
 		Set<String> hs = new HashSet<>();
-		String kpiGroupName = JSONUtils.getNodeString(body, "kpiGroupName");
+		String kpiGroupName = JSONUtils.getNodeStringNoDoubleQuotes(body, "kpiGroupName");
 		hs.add(kpiGroupName);
 		return hs;
 	}
 
 	private Set<String> getDataNameSetDbInsert(String body) {
 		Set<String> hs = new HashSet<>();
-    	String recordsJsonStr = JSONUtils.getNodeString(body, "records");
+    	String recordsJsonStr = JSONUtils.getNodeStringNoDoubleQuotes(body, "records");
     	if(StringUtils.isNotEmpty(recordsJsonStr)) {
     		List<HashMap> mapList = JSONUtils.toList(recordsJsonStr, HashMap.class);
     		for(HashMap hashMap : mapList) {

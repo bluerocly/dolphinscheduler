@@ -26,6 +26,7 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_SINGL
 import static com.fasterxml.jackson.databind.MapperFeature.REQUIRE_SETTERS_FOR_GETTERS;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.dolphinscheduler.common.Constants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -238,6 +239,14 @@ public class JSONUtils {
         } catch (JsonProcessingException e) {
             return "";
         }
+    }
+
+    public static String getNodeStringNoDoubleQuotes(String json, String nodeName) {
+        String result = getNodeString(json, nodeName);
+        if(result.startsWith(Constants.DOUBLE_QUOTES)) {
+        	result = result.substring(1, result.length()-1);
+		}
+        return result;
     }
 
     /**
