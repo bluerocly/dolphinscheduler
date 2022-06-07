@@ -36,7 +36,7 @@ public class MasterConfig {
     @Value("${master.exec.task.num:20}")
     private int masterExecTaskNum;
 
-    @Value("${master.dispatch.task.num:3}")
+    @Value("${master.dispatch.task.num:10}")
     private int masterDispatchTaskNumber;
 
     @Value("${master.host.selector:LowerWeight}")
@@ -68,6 +68,13 @@ public class MasterConfig {
 
     @Value("${master.persist.event.state.threads:10}")
     private int masterPersistEventStateThreads;
+    
+    @Value("${master.message.command.servers:}")
+    private String masterMessageCommandServers;
+    @Value("${master.message.command.topicName:}")
+    private String masterMessageCommandTopicName;
+    @Value("${master.message.command.groupId:csmaster}")
+    private String masterMessageCommandGroupId;
 
     public int getListenPort() {
         return listenPort;
@@ -183,4 +190,30 @@ public class MasterConfig {
     public void setMasterPersistEventStateThreads(int masterPersistEventStateThreads) {
         this.masterPersistEventStateThreads = masterPersistEventStateThreads;
     }
+
+	public String getMasterMessageCommandServers() {
+		return masterMessageCommandServers;
+	}
+
+	public void setMasterMessageCommandServers(String masterMessageCommandServers) {
+		this.masterMessageCommandServers = masterMessageCommandServers;
+	}
+
+	public String getMasterMessageCommandTopicName() {
+		return masterMessageCommandTopicName;
+	}
+
+	public void setMasterMessageCommandTopicName(String masterMessageCommandTopicName) {
+		this.masterMessageCommandTopicName = masterMessageCommandTopicName;
+	}
+
+	public String getMasterMessageCommandGroupId() {
+		return masterMessageCommandGroupId;
+	}
+
+	public void setMasterMessageCommandGroupId(String masterMessageCommandGroupId) {
+		this.masterMessageCommandGroupId = masterMessageCommandGroupId;
+	}
+    
+    
 }
