@@ -48,6 +48,7 @@ import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils.CodeGenerateException;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
+import org.apache.dolphinscheduler.dao.entity.CommandPush;
 import org.apache.dolphinscheduler.dao.entity.DagData;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinition;
 import org.apache.dolphinscheduler.dao.entity.ProcessDefinitionLog;
@@ -61,6 +62,7 @@ import org.apache.dolphinscheduler.dao.entity.TaskDefinitionLog;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.dao.entity.Tenant;
 import org.apache.dolphinscheduler.dao.entity.User;
+import org.apache.dolphinscheduler.dao.mapper.CommandPushMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionLogMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessTaskRelationLogMapper;
@@ -145,6 +147,9 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
 
     @Autowired
     private ScheduleMapper scheduleMapper;
+    
+    @Autowired
+    private CommandPushMapper commandPushMapper;
 
     @Autowired
     private ProcessService processService;
@@ -803,6 +808,12 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                         throw new ServiceException(Status.OFFLINE_SCHEDULE_ERROR);
                     }
                     schedulerService.deleteSchedule(project.getId(), schedule.getId());
+                }
+                CommandPush commandPush = commandPushMapper.queryByProcessDefinitionCode(code);
+                if(updateProcess > 0 && Objects.nonNull(commandPush)) {
+                	commandPush.setOnlineFlag(0);
+                	int updateByCount = commandPushMapper.updateById(commandPush);
+                	logger.info("set commandpush offline, project code: {}, commandpush id: {}, process definition code: {}, updateByCount: {}", projectCode, commandPush.getId(), code, updateByCount);
                 }
                 break;
             default:

@@ -59,6 +59,7 @@ public class MonitorServer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+    	logger.info("args.length[{}] , ARGS_LENGTH[{}]", args.length, ARGS_LENGTH);
         if (args.length < ARGS_LENGTH){
             logger.error("Usage: <masterPath> <workerPath> <port> <installPath> <sleepSecond>");
             return;
@@ -73,9 +74,12 @@ public class MonitorServer implements CommandLineRunner {
         	sleepSecond = Integer.parseInt(args[4]);
         }
         monitor.monitor(masterPath,workerPath,port,installPath);
+        logger.info("begin check with {} seconds." , sleepSecond);
         while(sleepSecond > 0) {
+        	logger.info("begin check...");
         	TimeUnit.SECONDS.sleep(sleepSecond);
         	monitor.monitor(masterPath,workerPath,port,installPath);
+        	logger.info("end check.");
         }
         System.exit(0);
     }

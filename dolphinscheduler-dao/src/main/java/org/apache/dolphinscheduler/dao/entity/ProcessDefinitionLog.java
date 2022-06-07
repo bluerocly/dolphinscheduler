@@ -62,6 +62,7 @@ public class ProcessDefinitionLog extends ProcessDefinition {
         this.setProjectName(processDefinition.getProjectName());
         this.setLocations(processDefinition.getLocations());
         this.setScheduleReleaseState(processDefinition.getScheduleReleaseState());
+        this.setPushReleaseState(processDefinition.getPushReleaseState());
         this.setTimeout(processDefinition.getTimeout());
         this.setTenantId(processDefinition.getTenantId());
         this.setModifyBy(processDefinition.getModifyBy());

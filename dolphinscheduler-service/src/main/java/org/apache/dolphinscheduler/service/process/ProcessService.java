@@ -57,6 +57,8 @@ import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.common.utils.ParameterUtils;
 import org.apache.dolphinscheduler.common.utils.TaskParametersUtils;
 import org.apache.dolphinscheduler.dao.entity.Command;
+import org.apache.dolphinscheduler.dao.entity.CommandPush;
+import org.apache.dolphinscheduler.dao.entity.CommandPushWaiting;
 import org.apache.dolphinscheduler.dao.entity.DagData;
 import org.apache.dolphinscheduler.dao.entity.DataSource;
 import org.apache.dolphinscheduler.dao.entity.Environment;
@@ -78,6 +80,8 @@ import org.apache.dolphinscheduler.dao.entity.Tenant;
 import org.apache.dolphinscheduler.dao.entity.UdfFunc;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.mapper.CommandMapper;
+import org.apache.dolphinscheduler.dao.mapper.CommandPushMapper;
+import org.apache.dolphinscheduler.dao.mapper.CommandPushWaitingMapper;
 import org.apache.dolphinscheduler.dao.mapper.DataSourceMapper;
 import org.apache.dolphinscheduler.dao.mapper.EnvironmentMapper;
 import org.apache.dolphinscheduler.dao.mapper.ErrorCommandMapper;
@@ -107,6 +111,7 @@ import org.apache.dolphinscheduler.spi.enums.ResourceType;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -126,6 +131,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
@@ -167,6 +173,12 @@ public class ProcessService {
 
     @Autowired
     private CommandMapper commandMapper;
+
+	@Autowired
+	private CommandPushMapper commandPushMapper;
+
+	@Autowired
+	private CommandPushWaitingMapper commandPushWaitingMapper;
 
     @Autowired
     private ScheduleMapper scheduleMapper;
@@ -258,6 +270,40 @@ public class ProcessService {
         createRecoveryWaitingThreadCommand(command, processInstance);
         return null;
     }
+
+	/**
+	 * insert one command
+	 *
+	 * @param command command
+	 * @return create result
+	 */
+	public int createCommandPush(CommandPush command) {
+		int result = 0;
+		if (command != null) {
+			result = commandPushMapper.insert(command);
+		}
+		return result;
+	}
+
+	public CommandPush queryCommandPushByProcessDefinitionCode(long processDefinitionCode) {
+//		CommandPush selectOne = commandPushMapper.selectOne(new QueryWrapper<CommandPush>().lambda()
+//				.eq(CommandPush::getProcessDefinitionCode, processDefinitionCode));
+		CommandPush selectOne = commandPushMapper.queryByProcessDefinitionCode(processDefinitionCode);
+		return selectOne;
+	}
+
+	public List<CommandPush> queryCommandPushListByDepDataName(String dataName) {
+		String dataNameSuffix = String.format("%s%s%s", Constants.COMMA, dataName, Constants.COMMA);
+
+//	"select id, process_definition_code, dep_data_names from t_ds_command_push where online_flag = 1 and dep_data_names like '%,dep_data_name,%'"
+		List<CommandPush> selectList = commandPushMapper.selectList(new QueryWrapper<CommandPush>().lambda()
+				.like(CommandPush::getDepDataNames, dataNameSuffix).eq(CommandPush::getOnlineFlag, 1));
+		return selectList;
+	}
+
+	public int updateCommandPush(CommandPush commandPush) {
+		return commandPushMapper.updateById(commandPush);
+	}
 
     /**
      * insert one command
@@ -2575,4 +2621,78 @@ public class ProcessService {
             throw new ServiceException("delete command fail, id:" + commandId);
         }
     }
+    
+	@Transactional
+	public void createCommandWithCommandPushWaitingAndUpdate() {
+		List<CommandPushWaiting> commandPushWaitingList = commandPushWaitingMapper.queryWaitingCommand();
+		if (CollectionUtils.isNotEmpty(commandPushWaitingList)) {
+			for (CommandPushWaiting pushWaiting : commandPushWaitingList) {
+				long processDefinitionCode = pushWaiting.getProcessDefinitionCode();
+				Date depDataTime = pushWaiting.getDepDataTime();
+				int commandPushId = pushWaiting.getCommandPushId();
+				CommandPush commandPush = commandPushMapper.selectById(commandPushId);
+				if (Objects.nonNull(commandPush) && commandPush.getOnlineFlag() == 1) {
+					Command command = trans2Command(commandPush);
+					command.setCommandType(CommandType.PUSH_START_PROCESS);
+					Map<String, String> cmdParam = JSONUtils.toMap(command.getCommandParam());
+					Map<String, String> startParamMap = new HashMap<>();
+					if (cmdParam != null && cmdParam.containsKey(Constants.CMD_PARAM_START_PARAMS)) {
+						String startParamJson = cmdParam.get(Constants.CMD_PARAM_START_PARAMS);
+						startParamMap = JSONUtils.toMap(startParamJson);
+						String depDataTimeStr = DateUtils.dateToString(depDataTime);
+						startParamMap.put(Constants.DEP_DATA_TIME, depDataTimeStr);
+						String depDataTimeReplacedName = startParamMap.get(Constants.DEP_DATA_TIME_REPLACED_NAME);
+						if(StringUtils.isNotEmpty(depDataTimeReplacedName)) {
+							startParamMap.put(depDataTimeReplacedName, depDataTimeStr);
+							cmdParam.put(Constants.CMD_PARAM_START_PARAMS, JSONUtils.toJsonString(startParamMap));
+							command.setCommandParam(JSONUtils.toJsonString(cmdParam));
+							logger.info("dep_data_time_replaced_name[{}], value[{}]", depDataTimeReplacedName, depDataTimeStr);
+						}
+					}
+					int insert = commandMapper.insert(command);
+					logger.info("create command {} ", insert);
+					int updateHandledFlag = commandPushWaitingMapper
+							.updateHandledFlagByProcessDefinitionCodeAndDataTime(processDefinitionCode, depDataTime);
+					logger.info("update command waiting handled flag, processDefinitionCode[{}], depDataTime[{}], {} ",
+							processDefinitionCode, depDataTime, updateHandledFlag);
+				} else {
+					logger.info("commandpush[{}] is null or offline. " + commandPush);
+				}
+			}
+		}
+	}
+
+	public int updateCommandPushWaitingReceiveFlagByDataNameAndDataTime(String dataName, Date dataTime) {
+		return commandPushWaitingMapper.updateCommandPushWaitingReceiveFlagByDataNameAndDataTime(dataName, dataTime);
+	}
+
+	private Command trans2Command(CommandPush commandPush) {
+		Command command = new Command();
+		try {
+			Class clazz = CommandPush.class;
+			Field[] fields = clazz.getFields();// Gives all declared public fields and inherited public fields of Super
+												// class
+			for (Field field : fields) {
+				Class type = field.getType();
+				Object obj = field.get(commandPush);
+				if ("depDataNames,onlineFlag".contains(field.getName())) {
+					continue;
+				}
+				command.getClass().getField(field.getName()).set(command, obj);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return command;
+	}
+
+	public int createCommandPushWaitings(List<CommandPushWaiting> commandPushWaitingList) {
+		int i = 0;
+		for (CommandPushWaiting commandPushWaiting : commandPushWaitingList) {
+			int insert = commandPushWaitingMapper.insert(commandPushWaiting);
+			i += insert;
+		}
+		return i;
+	}
 }

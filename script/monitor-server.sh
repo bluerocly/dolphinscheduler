@@ -21,7 +21,7 @@ print_usage(){
         exit 1
 }
 
-if [ $# -ne 4 ];then
+if [ $# -lt 5 ];then
         print_usage
 fi
 
@@ -29,6 +29,7 @@ masterPath=$1
 workerPath=$2
 port=$3
 installPath=$4
+sleepSecond=$5
 
 
 BIN_DIR=`dirname $0`
@@ -39,6 +40,7 @@ export JAVA_HOME=$JAVA_HOME
 
 
 export DOLPHINSCHEDULER_CONF_DIR=$DOLPHINSCHEDULER_HOME/conf
+export DOLPHINSCHEDULER_LOG_DIR=$DOLPHINSCHEDULER_HOME/logs
 export DOLPHINSCHEDULER_LIB_JARS=$DOLPHINSCHEDULER_HOME/lib/*
 
 export DOLPHINSCHEDULER_OPTS="-server -Xmx1g -Xms1g -Xss512k -XX:+DisableExplicitGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=70"
@@ -46,7 +48,7 @@ export STOP_TIMEOUT=5
 
 CLASS=org.apache.dolphinscheduler.server.monitor.MonitorServer
 
-exec_command="$DOLPHINSCHEDULER_OPTS -classpath $DOLPHINSCHEDULER_CONF_DIR:$DOLPHINSCHEDULER_LIB_JARS $CLASS $masterPath $workerPath $port $installPath"
+exec_command="$DOLPHINSCHEDULER_OPTS -classpath $DOLPHINSCHEDULER_CONF_DIR:$DOLPHINSCHEDULER_LIB_JARS $CLASS $masterPath $workerPath $port $installPath $sleepSecond"
 
 cd $DOLPHINSCHEDULER_HOME
-$JAVA_HOME/bin/java $exec_command
+nohup $JAVA_HOME/bin/java $exec_command > $DOLPHINSCHEDULER_LOG_DIR/dolphinscheduler-monitor.out 2>&1 &

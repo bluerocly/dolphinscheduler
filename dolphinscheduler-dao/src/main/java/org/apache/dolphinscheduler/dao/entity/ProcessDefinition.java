@@ -141,6 +141,12 @@ public class ProcessDefinition {
     private ReleaseState scheduleReleaseState;
 
     /**
+     * push release state : online/offline
+     */
+    @TableField(exist = false)
+    private ReleaseState pushReleaseState;
+
+    /**
      * process warning time out. unit: minute
      */
     private int timeout;
@@ -334,7 +340,15 @@ public class ProcessDefinition {
         this.scheduleReleaseState = scheduleReleaseState;
     }
 
-    public int getTimeout() {
+    public ReleaseState getPushReleaseState() {
+		return pushReleaseState;
+	}
+
+	public void setPushReleaseState(ReleaseState pushReleaseState) {
+		this.pushReleaseState = pushReleaseState;
+	}
+
+	public int getTimeout() {
         return timeout;
     }
 

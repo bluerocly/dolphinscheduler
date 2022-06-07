@@ -17,13 +17,13 @@
 
 package org.apache.dolphinscheduler.dao.entity;
 
+import java.util.Date;
+
 import org.apache.dolphinscheduler.common.enums.CommandType;
 import org.apache.dolphinscheduler.common.enums.FailureStrategy;
 import org.apache.dolphinscheduler.common.enums.Priority;
 import org.apache.dolphinscheduler.common.enums.TaskDependType;
 import org.apache.dolphinscheduler.common.enums.WarningType;
-
-import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -31,10 +31,16 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 /**
- * command
+ * command push
  */
-@TableName("t_ds_command")
-public class Command {
+@TableName("t_ds_command_push")
+public class CommandPush {
+	
+	
+	
+	public CommandPush() {
+       
+	}
 
     /**
      * id
@@ -138,48 +144,18 @@ public class Command {
     @TableField("process_definition_version")
     public int processDefinitionVersion;
 
-    public Command() {
-        this.taskDependType = TaskDependType.TASK_POST;
-        this.failureStrategy = FailureStrategy.CONTINUE;
-        this.startTime = new Date();
-        this.updateTime = new Date();
-    }
+    /**
+     * dep
+     */
+    @TableField("dep_data_names")
+    private String depDataNames;
 
-    public Command(
-            CommandType commandType,
-            TaskDependType taskDependType,
-            FailureStrategy failureStrategy,
-            int executorId,
-            long processDefinitionCode,
-            String commandParam,
-            WarningType warningType,
-            int warningGroupId,
-            Date scheduleTime,
-            String workerGroup,
-            Long environmentCode,
-            Priority processInstancePriority,
-            int dryRun,
-            int processInstanceId,
-            int processDefinitionVersion
-    ) {
-        this.commandType = commandType;
-        this.executorId = executorId;
-        this.processDefinitionCode = processDefinitionCode;
-        this.commandParam = commandParam;
-        this.warningType = warningType;
-        this.warningGroupId = warningGroupId;
-        this.scheduleTime = scheduleTime;
-        this.taskDependType = taskDependType;
-        this.failureStrategy = failureStrategy;
-        this.startTime = new Date();
-        this.updateTime = new Date();
-        this.workerGroup = workerGroup;
-        this.environmentCode = environmentCode;
-        this.processInstancePriority = processInstancePriority;
-        this.dryRun = dryRun;
-        this.processInstanceId = processInstanceId;
-        this.processDefinitionVersion = processDefinitionVersion;
-    }
+    @TableField("online_flag")
+    private int onlineFlag;
+    
+    @TableField("dep_data_time_replaced_name")
+    private String depDataTimeReplacedName;
+    
 
     public TaskDependType getTaskDependType() {
         return taskDependType;
@@ -324,8 +300,32 @@ public class Command {
     public void setProcessDefinitionVersion(int processDefinitionVersion) {
         this.processDefinitionVersion = processDefinitionVersion;
     }
+    
+    public String getDepDataNames() {
+		return depDataNames;
+	}
 
-    @Override
+	public void setDepDataNames(String depDataNames) {
+		this.depDataNames = depDataNames;
+	}
+
+	public int getOnlineFlag() {
+		return onlineFlag;
+	}
+
+	public void setOnlineFlag(int onlineFlag) {
+		this.onlineFlag = onlineFlag;
+	}
+
+	public String getDepDataTimeReplacedName() {
+		return depDataTimeReplacedName;
+	}
+
+	public void setDepDataTimeReplacedName(String depDataTimeReplacedName) {
+		this.depDataTimeReplacedName = depDataTimeReplacedName;
+	}
+
+	@Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -334,7 +334,7 @@ public class Command {
             return false;
         }
 
-        Command command = (Command) o;
+        CommandPush command = (CommandPush) o;
 
         if (id != command.id) {
             return false;
@@ -386,6 +386,16 @@ public class Command {
         if (processDefinitionVersion != command.getProcessDefinitionVersion()) {
             return false;
         }
+        
+        if (depDataNames != command.getDepDataNames()) {
+            return false;
+        }
+        if (depDataTimeReplacedName != command.getDepDataTimeReplacedName()) {
+            return false;
+        }
+        if (onlineFlag != command.getOnlineFlag()) {
+            return false;
+        }
         return !(updateTime != null ? !updateTime.equals(command.updateTime) : command.updateTime != null);
     }
 
@@ -409,12 +419,15 @@ public class Command {
         result = 31 * result + dryRun;
         result = 31 * result + processInstanceId;
         result = 31 * result + processDefinitionVersion;
+        result = 31 * result + (depDataNames != null ? depDataNames.hashCode() : 0);
+        result = 31 * result + (depDataTimeReplacedName != null ? depDataTimeReplacedName.hashCode() : 0);
+        result = 31 * result + onlineFlag;
         return result;
     }
 
     @Override
     public String toString() {
-        return "Command{"
+        return "CommandPush{"
                 + "id=" + id
                 + ", commandType=" + commandType
                 + ", processDefinitionCode=" + processDefinitionCode
@@ -433,6 +446,9 @@ public class Command {
                 + ", dryRun='" + dryRun + '\''
                 + ", processInstanceId='" + processInstanceId + '\''
                 + ", processDefinitionVersion='" + processDefinitionVersion + '\''
+                + ", depDataNames='" + depDataNames + '\''
+                + ", depDataTimeReplacedName='" + depDataTimeReplacedName + '\''
+                + ", onlineFlag='" + onlineFlag + '\''
                 + '}';
     }
 

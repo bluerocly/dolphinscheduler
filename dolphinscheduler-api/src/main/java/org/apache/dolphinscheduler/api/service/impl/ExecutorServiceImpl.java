@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.apache.dolphinscheduler.common.Constants.*;
@@ -67,7 +68,6 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
 
     @Autowired
     private MonitorService monitorService;
-
 
     @Autowired
     private ProcessInstanceMapper processInstanceMapper;
@@ -144,11 +144,21 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
         /**
          * create command
          */
-        int create = this.createCommand(commandType, processDefinition.getCode(),
+        String depDataNames = startParams.get(Constants.DEP_DATA_NAMES);
+        boolean isCommandPush = StringUtils.isNotEmpty(depDataNames);
+        
+        String depDataTimeReplacedName = startParams.get(Constants.DEP_DATA_TIME_REPLACED_NAME);
+        String onlineFlagStr = startParams.get(Constants.COMMAND_PUSH_ONLINE_FLAG);
+        int onlineFlag = 0;
+        if(StringUtils.isNotEmpty(onlineFlagStr)) {
+        	onlineFlag = Integer.valueOf(onlineFlagStr);
+        }
+        int create = this.createCommandOrCommandPush(commandType, processDefinition.getCode(),
                 taskDependType, failureStrategy, startNodeList, cronTime, warningType, loginUser.getId(),
-                warningGroupId, runMode, processInstancePriority, workerGroup, environmentCode, startParams, expectedParallelismNumber, dryRun);
-
-        if (create > 0) {
+                warningGroupId, runMode, processInstancePriority, workerGroup, environmentCode, startParams, expectedParallelismNumber, dryRun, isCommandPush, depDataNames, depDataTimeReplacedName, onlineFlag);
+        if(create > 0 && isCommandPush) {
+        	 putMsg(result, Status.SUCCESS);
+        } else if (create > 0) {
             processDefinition.setWarningGroupId(warningGroupId);
             processDefinitionMapper.updateById(processDefinition);
             putMsg(result, Status.SUCCESS);
@@ -459,6 +469,18 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
                 }
             }
         }
+        // add command push data
+        CommandPush commandPush = processService.queryCommandPushByProcessDefinitionCode(processDefinitionCode);
+        if(Objects.nonNull(commandPush)) {
+            Map<String, String> dataMap = new HashMap<>();
+        	String depDataNames = commandPush.getDepDataNames();
+        	if(StringUtils.isNotEmpty(depDataNames) && depDataNames.startsWith(Constants.COMMA)) {
+        		dataMap.put(Constants.DEP_DATA_NAMES, depDataNames.substring(1, depDataNames.length()-1));
+        	}
+        	dataMap.put(Constants.DEP_DATA_TIME_REPLACED_NAME, commandPush.getDepDataTimeReplacedName());
+        	dataMap.put(Constants.COMMAND_PUSH_ONLINE_FLAG, ""+commandPush.getOnlineFlag());
+        	result.put(Constants.DATA_LIST, dataMap);
+        }
         putMsg(result, Status.SUCCESS);
         return result;
     }
@@ -481,12 +503,12 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
      * @param environmentCode environmentCode
      * @return command id
      */
-    private int createCommand(CommandType commandType, long processDefineCode,
+    private int createCommandOrCommandPush(CommandType commandType, long processDefineCode,
                               TaskDependType nodeDep, FailureStrategy failureStrategy,
                               String startNodeList, String schedule, WarningType warningType,
                               int executorId, int warningGroupId,
                               RunMode runMode, Priority processInstancePriority, String workerGroup, Long environmentCode,
-                              Map<String, String> startParams, Integer expectedParallelismNumber, int dryRun) {
+                              Map<String, String> startParams, Integer expectedParallelismNumber, int dryRun, boolean isCommandPush, String depDataNames, String depDataTimeReplacedName,  int onlineFlag) {
 
         /**
          * instantiate command schedule instance
@@ -552,11 +574,40 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
             return createComplementCommandList(start, end, runMode, command, expectedParallelismNumber);
         } else {
             command.setCommandParam(JSONUtils.toJsonString(cmdParam));
-            return processService.createCommand(command);
+            // 如果是push方式，则入到CommandPush表
+            if(isCommandPush) {
+            	CommandPush commandPush = trans2CommandPush(command, depDataNames, depDataTimeReplacedName, onlineFlag);
+            	CommandPush queryCommandPushByProcessDefinitionCode = processService.queryCommandPushByProcessDefinitionCode(commandPush.getProcessDefinitionCode());
+            	if (Objects.nonNull(queryCommandPushByProcessDefinitionCode)) {
+            		commandPush.setId(queryCommandPushByProcessDefinitionCode.getId());
+            		return processService.updateCommandPush(commandPush);
+            	}
+            	return processService.createCommandPush(commandPush);
+            } else {
+            	return processService.createCommand(command);
+            }
         }
     }
 
-    /**
+    private CommandPush trans2CommandPush(Command command, String depDateNames, String depDataTimeReplacedName, int onlineFlag) {
+    	CommandPush commandPush = new CommandPush();
+    	 try{
+    	        Class clazz = Command.class;
+    	        Field[] fields = clazz.getFields();//Gives all declared public fields and inherited public fields of Super class
+    	        for ( Field field : fields ) {
+    	            Class type = field.getType();
+    	            Object obj = field.get(command);
+    	            commandPush.getClass().getField(field.getName()).set(commandPush,obj);
+    	        }
+    	        }catch(Exception ex){ex.printStackTrace();}
+    	
+    	commandPush.setDepDataNames(String.format("%s%s%s", Constants.COMMA, depDateNames, Constants.COMMA));
+    	commandPush.setDepDataTimeReplacedName(depDataTimeReplacedName);
+    	commandPush.setOnlineFlag(onlineFlag);
+		return commandPush;
+	}
+
+	/**
      * create complement command
      * close left open right
      *

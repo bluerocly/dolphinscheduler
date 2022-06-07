@@ -70,10 +70,12 @@
     <select id="queryDefineListPaging" resultType="org.apache.dolphinscheduler.dao.entity.ProcessDefinition">
         SELECT td.id, td.code, td.name, td.version, td.release_state, td.project_code, td.user_id, td.description,
         td.global_params, td.flag, td.warning_group_id, td.timeout, td.tenant_id, td.update_time, td.create_time,
-        sc.schedule_release_state, tu.user_name
+        sc.schedule_release_state, push_release_state, tu.user_name
         FROM t_ds_process_definition td
         left join (select process_definition_code,release_state as schedule_release_state from t_ds_schedules group by
         process_definition_code,release_state) sc on sc.process_definition_code = td.code
+        left join (select process_definition_code, online_flag as push_release_state from t_ds_command_push group by 
+		process_definition_code, online_flag ) push on push.process_definition_code = td.code
         left join t_ds_user tu on td.user_id = tu.id
         where td.project_code = #{projectCode}
         <if test=" searchVal != null and searchVal != ''">
@@ -84,7 +86,7 @@
         <if test=" userId != 0">
             and td.user_id = #{userId}
         </if>
-        order by sc.schedule_release_state desc,td.update_time desc,td.id asc
+        order by sc.schedule_release_state desc, push.push_release_state desc, td.update_time desc,td.id asc
     </select>
 
     <select id="queryAllDefinitionList" resultType="org.apache.dolphinscheduler.dao.entity.ProcessDefinition">

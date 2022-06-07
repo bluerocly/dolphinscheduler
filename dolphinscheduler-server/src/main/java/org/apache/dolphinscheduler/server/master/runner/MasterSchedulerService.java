@@ -195,6 +195,9 @@ public class MasterSchedulerService extends Thread {
      * 2. donot handle command if slot is empty
      */
     private void scheduleProcess() throws Exception {
+    	
+    	// make sure create command and update waiting handledflag in one transaction.
+    	createCommandWithCommandPushWaitingAndUpdate();
 
         // make sure to scan and delete command  table in one transaction
         Command command = findOneCommand();
@@ -260,7 +263,11 @@ public class MasterSchedulerService extends Thread {
         return result;
     }
 
-    private String getLocalAddress() {
+    private void createCommandWithCommandPushWaitingAndUpdate() {
+		processService.createCommandWithCommandPushWaitingAndUpdate();
+	}
+
+	private String getLocalAddress() {
         return NetUtils.getAddr(masterConfig.getListenPort());
     }
 }

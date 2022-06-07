@@ -1095,4 +1095,12 @@ public final class Constants {
     public static final int DRY_RUN_FLAG_YES = 1;
 
     public static final String CACHE_KEY_VALUE_ALL = "'all'";
+    
+    /**
+     * command push
+     */
+    public static final String DEP_DATA_NAMES = "dep_data_names";
+    public static final String DEP_DATA_TIME = "dep_data_time";
+    public static final String DEP_DATA_TIME_REPLACED_NAME = "dep_data_time_replaced_name";
+    public static final String COMMAND_PUSH_ONLINE_FLAG = "push_online_flag";
 }

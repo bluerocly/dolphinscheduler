@@ -169,7 +169,7 @@
               <el-radio :label="'SFTP_NAME'">{{$t('Sftp Name')}}</el-radio>
             </el-radio-group>
           </template>
-        </m-list-box-f>        
+        </m-list-box-f>
         <m-list-box-f v-if="showDatabaseInfo">
           <template slot="name">{{$t('jdbc connect parameters')}}</template>
           <template slot="content">
@@ -505,7 +505,7 @@
             break
           case 'FTP':
             defaultPort = '22'
-            break            
+            break
           default:
             break
         }
@@ -536,7 +536,6 @@
         } else {
           this.showConnectType = false
         }
-        //add ftp
         if (value === 'FTP' && !this.item.id) {
           this.showFtpConnectType = true
           this.showDatabaseInfo = false
@@ -551,7 +550,6 @@
           this.showDatabaseInfo = true
           this.showDatabase = false
         }
-        
         // Set default port for each type datasource
         this._setDefaultValues(value)
 

@@ -44,6 +44,13 @@
             <span v-if="!scope.row.scheduleReleaseState">-</span>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('Pushing state')">
+          <template slot-scope="scope">
+            <span v-if="scope.row.pushReleaseState === 'OFFLINE'" class="time_offline">{{$t('offline')}}</span>
+            <span v-if="scope.row.pushReleaseState === 'ONLINE'" class="time_online">{{$t('online')}}</span>
+            <span v-if="!scope.row.pushReleaseState">-</span>
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('Create Time')" width="135">
           <template slot-scope="scope">
             <span>{{scope.row.createTime | formatDate}}</span>
@@ -68,6 +75,9 @@
             </el-tooltip>
             <el-tooltip :content="$t('Start')" placement="top" :enterable="false">
               <span><el-button type="success" size="mini" :disabled="scope.row.releaseState !== 'ONLINE'"  icon="el-icon-video-play" @click="_start(scope.row)" circle></el-button></span>
+            </el-tooltip>
+            <el-tooltip :content="$t('Start')" placement="top" :enterable="false">
+              <span><el-button type="success" size="mini" :disabled="scope.row.releaseState !== 'ONLINE'"  icon="el-icon-message" @click="_pushstart(scope.row)" circle></el-button></span>
             </el-tooltip>
             <el-tooltip :content="$t('Timing')" placement="top" :enterable="false">
               <span><el-button type="primary" size="mini" icon="el-icon-time" :disabled="scope.row.releaseState !== 'ONLINE' || scope.row.scheduleReleaseState !== null" @click="_timing(scope.row)" circle></el-button></span>
@@ -136,6 +146,13 @@
       <m-start :startData= "startData" @onUpdateStart="onUpdateStart" @closeStart="closeStart"></m-start>
     </el-dialog>
     <el-dialog
+      :title="$t('Please set the parameters before starting')"
+      v-if="pushstartDialog"
+      :visible.sync="pushstartDialog"
+      width="auto">
+      <m-pushstart :startData= "pushstartData" @onUpdateStart="onUpdatepushStart" @closeStart="closepushStart"></m-pushstart>
+    </el-dialog>
+    <el-dialog
       :title="$t('Set parameters before timing')"
       :visible.sync="timingDialog"
       width="auto">
@@ -152,6 +169,7 @@
 <script>
   import _ from 'lodash'
   import mStart from './start'
+  import mPushstart from './pushstart'
   import mTiming from './timing'
   import mRelatedItems from './relatedItems'
   import { mapActions, mapState } from 'vuex'
@@ -174,7 +192,9 @@
           pageSize: null
         },
         startDialog: false,
+        pushstartDialog: false,
         startData: {},
+        pushstartData: {},
         timingDialog: false,
         timingData: {
           item: {},
@@ -212,6 +232,8 @@
       _start (item) {
         this.getWorkerGroupsAll()
         this.getStartCheck({ processDefinitionCode: item.code }).then(res => {
+          console.log("res",res)
+          console.log("item",item)
           this.startData = item
           this.startDialog = true
         }).catch(e => {
@@ -224,6 +246,28 @@
       },
       closeStart () {
         this.startDialog = false
+      },
+      
+      /**
+       * Push Start
+       */
+      _pushstart (item) {
+        this.getWorkerGroupsAll()
+        this.getStartCheck({ processDefinitionCode: item.code }).then(res => {
+          console.log("res",res)
+           console.log("item",item)
+          this.pushstartData = item
+          this.pushstartDialog = true
+        }).catch(e => {
+          this.$message.error(e.msg || '')
+        })
+      },
+      onUpdatepushStart () {
+        this._onUpdate()
+        this.pushstartDialog = false
+      },
+      closepushStart () {
+        this.pushstartDialog = false
       },
       /**
        * timing
@@ -523,7 +567,7 @@
     computed: {
       ...mapState('dag', ['projectCode'])
     },
-    components: { mVersions, mStart, mTiming, mRelatedItems }
+    components: { mVersions, mStart, mPushstart, mTiming, mRelatedItems }
   }
 </script>
 
