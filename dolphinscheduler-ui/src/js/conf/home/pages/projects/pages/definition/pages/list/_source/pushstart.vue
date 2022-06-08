@@ -108,7 +108,40 @@
         </el-select>
       </div>
     </div>
-
+    <!-- 依赖模型名称 -->
+    <div class="clearfix list">
+      <div class="text">
+        <span style="color:red">*</span>
+        {{$t('Dependent model name')}}
+      </div>
+      <div class="cont" style="width:400px">
+        <el-input size="small" style="width: 200px;" v-model="dep_data_names" placeholder="请输入内容"></el-input>
+        <span style="font-size: 12px;">(多个模型使用逗号分隔)</span>
+      </div>
+    </div>
+    <!--  -->
+    <!-- 时间替换变量 -->
+    <div class="clearfix list">
+      <div class="text">
+        {{$t('Time substitution variable')}}
+      </div>
+      <div class="cont">
+        <el-input size="small" style="width: 200px;" v-model="dep_data_time_replaced_name" placeholder="请输入内容"></el-input>
+        
+      </div>
+    </div>
+    <!--  -->
+    <!-- 依赖模型名称 -->
+    <div class="clearfix list">
+      <div class="text">
+        {{$t('Message driven status')}}
+      </div>
+      <div class="cont">
+        <el-radio v-model="push_online_flag" label="1">上线</el-radio>
+        <el-radio v-model="push_online_flag" label="0">下线</el-radio>
+      </div>
+    </div>
+    <!--  -->
     <div class="clearfix list">
       <div class="text">
         <span>{{$t('Startup parameter')}}</span>
@@ -154,6 +187,9 @@
     data () {
       return {
         store,
+        dep_data_names:"",
+        dep_data_time_replaced_name:"",
+        push_online_flag:"",
         processDefinitionId: 0,
         failureStrategy: 'CONTINUE',
         warningTypeList: warningTypeList,
@@ -180,6 +216,7 @@
     mixins: [disabledState],
     props: {
       startData: Object,
+      startNewData:Object,
       startNodeList: {
         type: String,
         default: ''
@@ -212,6 +249,10 @@
           this.$message.warning(`${i18n.$t('Parallelism number should be positive integer')}`)
           return false
         }
+        if(!this.dep_data_names){
+          this.$message.warning(`${i18n.$t('Dependent model name is a required field')}`)
+          return false
+        }
         return true
       },
       _start () {
@@ -219,7 +260,11 @@
           return
         }
         this.spinnerLoading = true
-        let startParams = {}
+        let startParams = {
+          dep_data_names:this.dep_data_names,
+          dep_data_time_replaced_name:this.dep_data_time_replaced_name,
+          push_online_flag:this.push_online_flag
+        }
         for (const item of this.udpList) {
           if (item.value !== '') {
             startParams[item.prop] = item.value
@@ -242,6 +287,8 @@
           expectedParallelismNumber: this.parallismNumber,
           dryRun: this.dryRun
         }
+        console.log("param",param);
+        // return;
         // Executed from the specified node
         if (this.sourceType === 'contextmenu') {
           param.taskDependType = this.taskDependType
@@ -317,6 +364,16 @@
       }
     },
     mounted () {
+      console.log("this.startNewData",this.startNewData);
+      if(this.startNewData&&this.startNewData.dep_data_names){
+        this.dep_data_names=this.startNewData.dep_data_names
+      }
+      if(this.startNewData&&this.startNewData.dep_data_time_replaced_name){
+        this.dep_data_time_replaced_name=this.startNewData.dep_data_time_replaced_name
+      }
+      if(this.startNewData&&this.startNewData.push_online_flag){
+        this.push_online_flag=this.startNewData.push_online_flag
+      }
       this._getNotifyGroupList().then(() => {
         this.$nextTick(() => {
           this.warningGroupId = ''

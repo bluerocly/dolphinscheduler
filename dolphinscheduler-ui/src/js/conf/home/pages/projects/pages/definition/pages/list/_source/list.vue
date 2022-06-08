@@ -68,7 +68,7 @@
         </el-table-column>
         <el-table-column prop="userName" :label="$t('Create User')"></el-table-column>
         <el-table-column prop="modifyBy" :label="$t('Modify User')"></el-table-column>
-        <el-table-column :label="$t('Operation')" width="335" fixed="right">
+        <el-table-column :label="$t('Operation')" width="355" fixed="right">
           <template slot-scope="scope">
             <el-tooltip :content="$t('Edit')" placement="top" :enterable="false">
               <span><el-button type="primary" size="mini" icon="el-icon-edit-outline" :disabled="scope.row.releaseState === 'ONLINE'" @click="_edit(scope.row)" circle></el-button></span>
@@ -150,7 +150,7 @@
       v-if="pushstartDialog"
       :visible.sync="pushstartDialog"
       width="auto">
-      <m-pushstart :startData= "pushstartData" @onUpdateStart="onUpdatepushStart" @closeStart="closepushStart"></m-pushstart>
+      <m-pushstart :startData= "pushstartData" :startNewData="pushstartNewData" @onUpdateStart="onUpdatepushStart" @closeStart="closepushStart"></m-pushstart>
     </el-dialog>
     <el-dialog
       :title="$t('Set parameters before timing')"
@@ -195,6 +195,7 @@
         pushstartDialog: false,
         startData: {},
         pushstartData: {},
+        pushstartNewData: {},
         timingDialog: false,
         timingData: {
           item: {},
@@ -256,6 +257,7 @@
         this.getStartCheck({ processDefinitionCode: item.code }).then(res => {
           console.log("res",res)
            console.log("item",item)
+           this.pushstartNewData = res.data;
           this.pushstartData = item
           this.pushstartDialog = true
         }).catch(e => {
