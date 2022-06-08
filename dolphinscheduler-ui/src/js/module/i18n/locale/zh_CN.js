@@ -381,7 +381,7 @@ export default {
   'Full Screen': '全屏',
   Unpublished: '未发布',
   'Start Process': '启动工作流',
-  'Push Start Process': '消息驱动工作流',
+  'Push Start Process': '消息驱动',
   'Execute from the current node': '从当前节点开始执行',
   'Recover tolerance fault process': '恢复被容错的工作流',
   'Resume the suspension process': '恢复运行流程',
