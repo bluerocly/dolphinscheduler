@@ -140,6 +140,12 @@ public class ProcessInstance {
     private Date scheduleTime;
 
     /**
+     * data time string
+     */
+    @TableField(exist = false)
+    private String dataTimeStr;
+    
+    /**
      * command start time
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -623,8 +629,16 @@ public class ProcessInstance {
     public void setProcessDefinitionVersion(int processDefinitionVersion) {
         this.processDefinitionVersion = processDefinitionVersion;
     }
+    
+    public String getDataTimeStr() {
+		return dataTimeStr;
+	}
 
-    @Override
+	public void setDataTimeStr(String dataTimeStr) {
+		this.dataTimeStr = dataTimeStr;
+	}
+
+	@Override
     public String toString() {
         return "ProcessInstance{"
             + "id=" + id
@@ -654,6 +668,8 @@ public class ProcessInstance {
             + warningGroupId
             + ", scheduleTime="
             + scheduleTime
+            + ", dataTimeStr="
+            + dataTimeStr
             + ", commandStartTime="
             + commandStartTime
             + ", globalParams='"

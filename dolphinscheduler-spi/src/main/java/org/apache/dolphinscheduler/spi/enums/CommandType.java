@@ -38,6 +38,7 @@ public enum CommandType {
      * 8 pause a process
      * 9 stop a process
      * 10 recover waiting thread
+     * 11 push start a new process by lij
      */
     START_PROCESS(0, "start a new process"),
     START_CURRENT_TASK_PROCESS(1, "start a new process from current nodes"),
@@ -49,7 +50,8 @@ public enum CommandType {
     REPEAT_RUNNING(7, "repeat running a process"),
     PAUSE(8, "pause a process"),
     STOP(9, "stop a process"),
-    RECOVER_WAITING_THREAD(10, "recover waiting thread");
+    RECOVER_WAITING_THREAD(10, "recover waiting thread"),
+	PUSH_START_PROCESS(11, "push start a new process");
 
     CommandType(int code, String descp) {
         this.code = code;

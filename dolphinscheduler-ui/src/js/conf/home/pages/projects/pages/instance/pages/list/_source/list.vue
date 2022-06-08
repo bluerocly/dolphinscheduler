@@ -46,6 +46,12 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('Data Time')" width="135">
+          <template slot-scope="scope">
+            <span v-if="scope.row.dataTimeStr">{{scope.row.dataTimeStr}}</span>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>        
         <el-table-column :label="$t('Start Time')" width="135">
           <template slot-scope="scope">
             <span>{{scope.row.startTime | formatDate}}</span>

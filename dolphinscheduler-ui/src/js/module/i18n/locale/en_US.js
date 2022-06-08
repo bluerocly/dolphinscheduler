@@ -323,6 +323,7 @@ export default {
   Executor: 'Executor',
   'Run Type': 'Run Type',
   'Scheduling Time': 'Scheduling Time',
+  'Data Time': 'g_start_time',
   'Run Times': 'Run Times',
   host: 'host',
   'fault-tolerant sign': 'fault-tolerant sign',

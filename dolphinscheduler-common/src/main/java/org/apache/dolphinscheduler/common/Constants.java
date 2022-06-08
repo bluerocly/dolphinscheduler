@@ -1103,4 +1103,6 @@ public final class Constants {
     public static final String DEP_DATA_TIME = "dep_data_time";
     public static final String DEP_DATA_TIME_REPLACED_NAME = "dep_data_time_replaced_name";
     public static final String COMMAND_PUSH_ONLINE_FLAG = "push_online_flag";
+    
+    public static final String DATA_TIME_PARAMETER_NAME = "g_start_time"; // 工作流实例中显示的时间
 }

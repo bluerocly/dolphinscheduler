@@ -289,6 +289,7 @@ public class ProcessInstanceServiceImpl extends BaseServiceImpl implements Proce
         }
 
         for (ProcessInstance processInstance : processInstances) {
+        	processInstance.setDataTimeStr(getDataTimeStrFromGlobalParams(processInstance));
             processInstance.setDuration(DateUtils.format2Duration(processInstance.getStartTime(), processInstance.getEndTime()));
             User executor = idToUserMap.get(processInstance.getExecutorId());
             if (null != executor) {
@@ -710,6 +711,19 @@ public class ProcessInstanceServiceImpl extends BaseServiceImpl implements Proce
         result.put(DATA_LIST, resultMap);
         putMsg(result, Status.SUCCESS);
         return result;
+    }
+    
+    private String getDataTimeStrFromGlobalParams(ProcessInstance processInstance) {
+    	String userDefinedParams = processInstance.getGlobalParams();
+        if (StringUtils.isNotEmpty(userDefinedParams)) {
+        	List<Property> globalParams = JSONUtils.toList(userDefinedParams, Property.class);
+            for(Property property : globalParams) {
+            	if(Constants.DATA_TIME_PARAMETER_NAME.equalsIgnoreCase(property.getProp())) {
+            		return property.getValue();
+            	}
+            }
+        }
+        return "-";
     }
 
     /**

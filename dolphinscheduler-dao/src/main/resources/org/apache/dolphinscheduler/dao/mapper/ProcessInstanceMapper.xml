@@ -100,7 +100,8 @@
     <select id="queryProcessInstanceListPaging" resultType="org.apache.dolphinscheduler.dao.entity.ProcessInstance">
         select instance.id, instance.command_type, instance.executor_id, instance.process_definition_version,
         instance.process_definition_code, instance.name, instance.state, instance.schedule_time, instance.start_time,
-        instance.end_time, instance.run_times, instance.recovery, instance.host, instance.dry_run, instance.restart_time
+        instance.end_time, instance.run_times, instance.recovery, instance.host, instance.dry_run, instance.restart_time,
+        instance.global_params
         from t_ds_process_instance instance
         join t_ds_process_definition define ON instance.process_definition_code = define.code
         where instance.is_sub_process=0

@@ -322,6 +322,7 @@ export default {
   Executor: '执行用户',
   'Run Type': '运行类型',
   'Scheduling Time': '调度时间',
+  'Data Time': 'g_start_time',
   'Run Times': '运行次数',
   host: 'host',
   'fault-tolerant sign': '容错标识',
