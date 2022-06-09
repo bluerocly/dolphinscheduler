@@ -145,17 +145,18 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
          * create command
          */
         String depDataNames = "";
+        String depDataTimeReplacedName = "";
+        int onlineFlag = 0;
         if(startParams != null) {
         	depDataNames = startParams.get(Constants.DEP_DATA_NAMES);
+        	depDataTimeReplacedName = startParams.get(Constants.DEP_DATA_TIME_REPLACED_NAME);
+        	String onlineFlagStr = startParams.get(Constants.COMMAND_PUSH_ONLINE_FLAG);
+        	if(StringUtils.isNotEmpty(onlineFlagStr)) {
+        		onlineFlag = Integer.valueOf(onlineFlagStr);
+        	}
         }
         boolean isCommandPush = StringUtils.isNotEmpty(depDataNames);
         
-        String depDataTimeReplacedName = startParams.get(Constants.DEP_DATA_TIME_REPLACED_NAME);
-        String onlineFlagStr = startParams.get(Constants.COMMAND_PUSH_ONLINE_FLAG);
-        int onlineFlag = 0;
-        if(StringUtils.isNotEmpty(onlineFlagStr)) {
-        	onlineFlag = Integer.valueOf(onlineFlagStr);
-        }
         int create = this.createCommandOrCommandPush(commandType, processDefinition.getCode(),
                 taskDependType, failureStrategy, startNodeList, cronTime, warningType, loginUser.getId(),
                 warningGroupId, runMode, processInstancePriority, workerGroup, environmentCode, startParams, expectedParallelismNumber, dryRun, isCommandPush, depDataNames, depDataTimeReplacedName, onlineFlag);
