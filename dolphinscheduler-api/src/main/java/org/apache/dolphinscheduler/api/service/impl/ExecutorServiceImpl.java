@@ -144,7 +144,10 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
         /**
          * create command
          */
-        String depDataNames = startParams.get(Constants.DEP_DATA_NAMES);
+        String depDataNames = "";
+        if(startParams != null) {
+        	depDataNames = startParams.get(Constants.DEP_DATA_NAMES);
+        }
         boolean isCommandPush = StringUtils.isNotEmpty(depDataNames);
         
         String depDataTimeReplacedName = startParams.get(Constants.DEP_DATA_TIME_REPLACED_NAME);
