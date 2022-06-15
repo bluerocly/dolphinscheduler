@@ -40,12 +40,18 @@
         where process_definition_code = #{processDefinitionCode} and dep_data_time = #{depDataTime}
     </update>
     
-    <update id="updateCommandPushWaitingReceiveFlagByDataNameAndDataTime">
+    <update id="updateCommandPushWaitingReceiveFlagByCodeNameAndDataTime">
         update t_ds_command_push_waiting 
         set receive_flag = 1 
-        where dep_data_name=#{depDataName} and dep_data_time=#{depDataTime}
+        where process_definition_code=#{processDefinitionCode} and dep_data_name=#{depDataName} and dep_data_time=#{depDataTime}
         
     </update>
+    
+    <select id="existUnHandledCommandWaiting" resultType="java.lang.Boolean">
+        select 1
+        from t_ds_command_push_waiting
+        where process_definition_code=#{processDefinitionCode} and dep_data_time=#{depDataTime} and handled_flag = 0  limit 1
+    </select>
     
     
 </mapper>

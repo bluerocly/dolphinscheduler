@@ -298,6 +298,7 @@ public class ProcessService {
 //	"select id, process_definition_code, dep_data_names from t_ds_command_push where online_flag = 1 and dep_data_names like '%,dep_data_name,%'"
 		List<CommandPush> selectList = commandPushMapper.selectList(new QueryWrapper<CommandPush>().lambda()
 				.like(CommandPush::getDepDataNames, dataNameSuffix).eq(CommandPush::getOnlineFlag, 1));
+//		List<CommandPush> selectList = commandPushMapper.queryByLikeDepDataNameWithOnline(dataNameSuffix);
 		return selectList;
 	}
 
@@ -2662,8 +2663,8 @@ public class ProcessService {
 		}
 	}
 
-	public int updateCommandPushWaitingReceiveFlagByDataNameAndDataTime(String dataName, Date dataTime) {
-		return commandPushWaitingMapper.updateCommandPushWaitingReceiveFlagByDataNameAndDataTime(dataName, dataTime);
+	public int updateCommandPushWaitingReceiveFlagByCodeNameAndDataTime(long processDefinitionCode, String dataName, Date dataTime) {
+		return commandPushWaitingMapper.updateCommandPushWaitingReceiveFlagByCodeNameAndDataTime(processDefinitionCode,dataName, dataTime);
 	}
 
 	private Command trans2Command(CommandPush commandPush) {
@@ -2694,5 +2695,9 @@ public class ProcessService {
 			i += insert;
 		}
 		return i;
+	}
+
+	public boolean isExistUnHandledCommandWaiting(long processDefinitionCode, Date dataTimeDate) {
+		return commandPushWaitingMapper.existUnHandledCommandWaiting(processDefinitionCode, dataTimeDate) == Boolean.TRUE;
 	}
 }

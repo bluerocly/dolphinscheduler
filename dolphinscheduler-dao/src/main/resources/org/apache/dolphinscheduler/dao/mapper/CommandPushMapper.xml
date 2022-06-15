@@ -36,5 +36,12 @@
         from t_ds_command_push
         where process_definition_code = #{processDefinitionCode}
     </select>
-    
+ 
+     <select id="queryByLikeDepDataNameWithOnline" resultType="org.apache.dolphinscheduler.dao.entity.CommandPush">
+        select
+		<include refid="baseSql"/>
+        from t_ds_command_push
+        where online_flag = 1 and dep_data_names like  concat ('%', #{dataNameSuffix}, '%') 
+    </select>
+       
 </mapper>

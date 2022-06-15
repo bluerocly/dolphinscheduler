@@ -37,6 +37,16 @@
             <span>{{scope.row.description | filterNull}}</span>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('Process Name')" width="120">
+          <template slot-scope="scope">
+            <span>{{scope.row.processName | filterNull}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('Process Description')" width="200">
+          <template slot-scope="scope">
+            <span>{{scope.row.processDescription | filterNull}}</span>
+          </template>
+        </el-table-column>        
         <el-table-column :label="$t('Create Time')" min-width="120">
           <template slot-scope="scope">
             <span>{{scope.row.createTime | formatDate}}</span>

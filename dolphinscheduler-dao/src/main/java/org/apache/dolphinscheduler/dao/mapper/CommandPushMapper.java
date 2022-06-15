@@ -36,4 +36,6 @@ public interface CommandPushMapper extends BaseMapper<CommandPush> {
 
 	CommandPush queryByProcessDefinitionCode(@Param("processDefinitionCode") long processDefinitionCode);
 
+	List<CommandPush> queryByLikeDepDataNameWithOnline(@Param("dataNameSuffix") String dataNameSuffix);
+
 }

@@ -89,6 +89,20 @@ public class Project {
      */
     @TableField(exist = false)
     private int instRunningCount;
+    
+
+    /**
+     * project name
+     */
+    @TableField(exist = false)
+    private String processName;
+
+    /**
+     * project description
+     */
+    @TableField(exist = false)
+    private String processDescription;
+    
 
     public long getCode() {
         return code;
@@ -177,8 +191,25 @@ public class Project {
     public void setPerm(int perm) {
         this.perm = perm;
     }
+    
 
-    @Override
+    public String getProcessName() {
+		return processName;
+	}
+
+	public void setProcessName(String processName) {
+		this.processName = processName;
+	}
+
+	public String getProcessDescription() {
+		return processDescription;
+	}
+
+	public void setProcessDescription(String processDescription) {
+		this.processDescription = processDescription;
+	}
+
+	@Override
     public String toString() {
         return "Project{"
                 + "id=" + id
@@ -187,6 +218,8 @@ public class Project {
                 + ", code=" + code
                 + ", name='" + name + '\''
                 + ", description='" + description + '\''
+                + ", processName='" + processName + '\''
+                + ", processDescription='" + processDescription + '\''
                 + ", createTime=" + createTime
                 + ", updateTime=" + updateTime
                 + ", perm=" + perm

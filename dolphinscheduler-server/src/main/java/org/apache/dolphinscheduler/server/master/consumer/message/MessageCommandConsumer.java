@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 public class MessageCommandConsumer {
     private static final Logger logger = LoggerFactory.getLogger(MessageCommandConsumer.class);
     
-    public static final String header_msg_type = "message_type";
+    public static final String header_msg_type = "msgtype";
     public static final String msg_data_name = "kpiGroupName";
     public static final String msg_data_time = "dataTime";
     public static final String msg_data_period = "dataPeriod";
@@ -70,7 +70,7 @@ public class MessageCommandConsumer {
 	        	dataNameSet = getDataNameSetDbIntegrity(body);
 	        	break;
 	        default:
-	        	logger.info("unkown");
+	        	logger.info("receive commandpush message unkown [{}]", body);
 	        	return;
 	        }
 //			RawMessage message = new RawMessage();
@@ -81,17 +81,18 @@ public class MessageCommandConsumer {
 			logger.info("receive commandpush message, msg_type[{}], partition[{}], offset[{}], body:[{}] ", msg_type, partitionId, offset, body);
 			
 	    	Date dataTimeDate = DateUtils.stringToDate(dataTimeStr);
+	    	
         	for(String dataName : dataNameSet) {
-        		int update = processService.updateCommandPushWaitingReceiveFlagByDataNameAndDataTime(dataName,dataTimeDate);
-                if(update < 1) {
-                	List<CommandPush> commandPushList = processService.queryCommandPushListByDepDataName(dataName);
-                	if(CollectionUtils.isNotEmpty(commandPushList)) {
-                		for(CommandPush commandPush : commandPushList) {
-                			String[] splits = commandPush.getDepDataNames().split(",");
-                			List<CommandPushWaiting> commandPushWaitingList = new ArrayList<>();
-                			for(String split : splits) {
-                				if(StringUtils.isNotEmpty(split)) {
-                					CommandPushWaiting commandPushWaiting = new CommandPushWaiting();
+        		List<CommandPush> commandPushList = processService.queryCommandPushListByDepDataName(dataName);
+        		if(CollectionUtils.isNotEmpty(commandPushList)) {
+            		for(CommandPush commandPush : commandPushList) {
+            			boolean isExistUnHandledCommandWaiting = processService.isExistUnHandledCommandWaiting(commandPush.getProcessDefinitionCode(), dataTimeDate);
+            			if(!isExistUnHandledCommandWaiting) {
+            				String[] splits = commandPush.getDepDataNames().split(Constants.COMMA);
+	            			List<CommandPushWaiting> commandPushWaitingList = new ArrayList<>();
+	            			for(String split : splits) {
+	            				if(StringUtils.isNotEmpty(split)) {
+            						CommandPushWaiting commandPushWaiting = new CommandPushWaiting();
                 					commandPushWaiting.setProcessDefinitionCode(commandPush.getProcessDefinitionCode());
                 					commandPushWaiting.setCommandPushId(commandPush.getId());
                 					commandPushWaiting.setDepDataName(split);
@@ -108,13 +109,15 @@ public class MessageCommandConsumer {
                 						commandPushWaiting.setReceiveFlag(0);
                 					}
                 					commandPushWaitingList.add(commandPushWaiting);
-                				}
-                			}
-                			int insertCount = processService.createCommandPushWaitings(commandPushWaitingList);
-                			logger.info("depDataName[{}], getProcessDefinitionCode[{}], depDataNames[{}], createCommandPushWaitings[{}], commandPushWaitingList.size[{}]", dataName, commandPush.getProcessDefinitionCode(), commandPush.getDepDataNames(), insertCount, commandPushWaitingList.size());
-                		}
-                	}
-                }
+            					}
+            				}
+	            			int insertCount = processService.createCommandPushWaitings(commandPushWaitingList);
+	            			logger.info("depDataName[{}], getProcessDefinitionCode[{}], depDataNames[{}], createCommandPushWaitings[{}], commandPushWaitingList.size[{}]", dataName, commandPush.getProcessDefinitionCode(), commandPush.getDepDataNames(), insertCount, commandPushWaitingList.size());
+            			} else {
+            				processService.updateCommandPushWaitingReceiveFlagByCodeNameAndDataTime(commandPush.getProcessDefinitionCode(), dataName, dataTimeDate);
+            			}
+            		}
+        		}
         	}
         	
 		} catch (Exception e) {

@@ -39,6 +39,8 @@ public interface CommandPushWaitingMapper extends BaseMapper<CommandPushWaiting>
 
 	int updateHandledFlagByProcessDefinitionCodeAndDataTime(@Param("processDefinitionCode") long processDefinitionCode, @Param("depDataTime") Date depDataTime);
 	
-	int updateCommandPushWaitingReceiveFlagByDataNameAndDataTime(@Param("depDataName") String depDataName, @Param("depDataTime") Date depDataTime);
+	int updateCommandPushWaitingReceiveFlagByCodeNameAndDataTime(@Param("processDefinitionCode") long processDefinitionCode, @Param("depDataName") String depDataName, @Param("depDataTime") Date depDataTime);
+
+	Boolean existUnHandledCommandWaiting(@Param("processDefinitionCode") long processDefinitionCode, @Param("depDataTime") Date dataTimeDate);
 
 }

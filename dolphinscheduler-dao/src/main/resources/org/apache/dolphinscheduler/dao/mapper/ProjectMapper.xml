@@ -78,8 +78,21 @@
         (SELECT COUNT(*) FROM t_ds_process_definition_log def, t_ds_process_instance inst WHERE def.code =
         inst.process_definition_code and def.version = inst.process_definition_version AND def.project_code = p.code
         AND inst.state=1 ) as inst_running_count
+        <if test="searchName!=null and searchName != ''">
+          	, pc.name as process_name
+          	, pc.description as process_description
+         </if>
+       
         from t_ds_project p
         left join t_ds_user u on u.id=p.user_id
+        <if test="searchName!=null and searchName != ''">
+        	left join (
+        	SELECT project_code, t1.name as name, t1.description as description
+        	FROM t_ds_process_definition t1,t_ds_project t2 
+        	WHERE t1.project_code = t2.code AND t1.name  LIKE concat('%', #{searchName}, '%') 
+        	) as pc 
+        	on pc.project_code = p.code
+         </if>
         where 1=1
         <if test="userId != 0">
             and p.id in
@@ -90,7 +103,7 @@
         <if test="searchName!=null and searchName != ''">
             AND (p.name LIKE concat('%', #{searchName}, '%')
             OR p.description LIKE concat('%', #{searchName}, '%')
-            )
+            ) OR pc.name  LIKE concat('%', #{searchName}, '%')
         </if>
         order by p.create_time desc
     </select>

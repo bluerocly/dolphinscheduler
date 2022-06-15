@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 <template>
-  <m-list-construction :title="$t('Project')">
+  <m-list-construction :title="$t('Project Extend')">
     <template slot="conditions">
       <m-conditions @on-conditions="_onConditions">
         <template slot="button-group">
