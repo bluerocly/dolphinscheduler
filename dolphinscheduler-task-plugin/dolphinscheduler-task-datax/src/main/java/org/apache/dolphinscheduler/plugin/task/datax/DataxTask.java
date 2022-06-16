@@ -469,7 +469,7 @@ public class DataxTask extends AbstractTaskExecutor {
         writerParam.put("path", subdirectory);
         writerParam.put("fileName", fileName);
         
-        writerParam.put("writeMode", "truncate");
+        writerParam.put("writeMode", "truncateone");
         writerParam.put("fieldDelimiter",fieldDelimiter);
         writerParam.put("encoding", ftpEncoding);
         writerParam.put("nullFormat", "");
