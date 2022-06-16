@@ -90,7 +90,12 @@ public class Project {
     @TableField(exist = false)
     private int instRunningCount;
     
+    @TableField(exist = false)
+    private int instFailureCount;
 
+    @TableField(exist = false)
+    private int taskFailureCount;
+    
     /**
      * project name
      */
@@ -209,6 +214,22 @@ public class Project {
 		this.processDescription = processDescription;
 	}
 
+	public int getInstFailureCount() {
+		return instFailureCount;
+	}
+
+	public void setInstFailureCount(int instFailureCount) {
+		this.instFailureCount = instFailureCount;
+	}
+	
+	public int getTaskFailureCount() {
+		return taskFailureCount;
+	}
+
+	public void setTaskFailureCount(int taskFailureCount) {
+		this.taskFailureCount = taskFailureCount;
+	}
+
 	@Override
     public String toString() {
         return "Project{"
@@ -225,6 +246,8 @@ public class Project {
                 + ", perm=" + perm
                 + ", defCount=" + defCount
                 + ", instRunningCount=" + instRunningCount
+                + ", instFailureCount=" + instFailureCount
+                + ", taskFailureCount=" + taskFailureCount
                 + '}';
     }
 
@@ -269,6 +292,8 @@ public class Project {
         private int perm;
         private int defCount;
         private int instRunningCount;
+        private int instFailureCount;
+        private int taskFailureCount;
 
         private Builder() {
         }
@@ -327,6 +352,14 @@ public class Project {
             this.instRunningCount = instRunningCount;
             return this;
         }
+        public Builder instFailureCount(int instFailureCount) {
+        	this.instFailureCount = instFailureCount;
+        	return this;
+        }
+        public Builder taskFailureCount(int taskFailureCount) {
+        	this.taskFailureCount = taskFailureCount;
+        	return this;
+        }
 
         public Project build() {
             Project project = new Project();
@@ -341,6 +374,8 @@ public class Project {
             project.setPerm(perm);
             project.setDefCount(defCount);
             project.setInstRunningCount(instRunningCount);
+            project.setInstFailureCount(instFailureCount);
+            project.setTaskFailureCount(taskFailureCount);
             return project;
         }
     }

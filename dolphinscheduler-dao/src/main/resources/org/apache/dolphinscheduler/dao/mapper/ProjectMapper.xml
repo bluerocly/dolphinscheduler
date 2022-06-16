@@ -76,8 +76,18 @@
         u.user_name as user_name,
         (SELECT COUNT(*) FROM t_ds_process_definition AS def WHERE def.project_code = p.code) AS def_count,
         (SELECT COUNT(*) FROM t_ds_process_definition_log def, t_ds_process_instance inst WHERE def.code =
-        inst.process_definition_code and def.version = inst.process_definition_version AND def.project_code = p.code
-        AND inst.state=1 ) as inst_running_count
+        		inst.process_definition_code and def.version = inst.process_definition_version AND def.project_code = p.code
+        		AND inst.state=1 ) as inst_running_count,
+        (select count(0) from t_ds_process_instance t
+        	join t_ds_process_definition d on d.code=t.process_definition_code
+        	join t_ds_project p1 on p1.code=d.project_code
+			where t.state=6 and t.is_sub_process = 0 and d.project_code = p.code
+				and t.start_time <![CDATA[ >= ]]> date_sub(curdate(),interval 1 day) ) as inst_failure_count,
+        (select count(0) from t_ds_task_instance t
+	            left join t_ds_task_definition_log d on d.code=t.task_code and d.version=t.task_definition_version
+	            left join t_ds_project p1 on p1.code=d.project_code
+          	where t.state = 6 and d.project_code = p.code
+                and t.start_time <![CDATA[ >= ]]> date_sub(curdate(),interval 1 day) ) as task_failure_count
         <if test="searchName!=null and searchName != ''">
           	, pc.name as process_name
           	, pc.description as process_description

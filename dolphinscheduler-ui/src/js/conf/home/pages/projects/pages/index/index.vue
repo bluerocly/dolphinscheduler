@@ -93,7 +93,7 @@
     },
     created () {
       this.searchParams.projectCode = this.$route.params.projectCode == null ? 0 : this.$route.params.projectCode
-      this.dataTime[0] = dayjs().format('YYYY-MM-DD 00:00:00')
+      this.dataTime[0] = dayjs().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss')
       this.dataTime[1] = dayjs().format('YYYY-MM-DD HH:mm:ss')
       this.searchParams.startDate = this.dataTime[0]
       this.searchParams.endDate = this.dataTime[1]

@@ -579,6 +579,8 @@ export default {
   'Statement cannot be empty': 'Statement cannot be empty',
   'Process Define Count': 'Work flow Define Count',
   'Process Instance Running Count': 'Process Instance Running Count',
+  'Process Instance Failure Count': 'Process Instance Failure Count',
+  'Task Instance Failure Count': 'Task Instance Failure Count',
   'command number of waiting for running': 'command number of waiting for running',
   'failure command number': 'failure command number',
   'tasks number of waiting running': 'tasks number of waiting running',
