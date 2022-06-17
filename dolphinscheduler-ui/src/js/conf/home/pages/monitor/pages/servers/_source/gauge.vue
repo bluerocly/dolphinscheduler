@@ -17,7 +17,7 @@
 <template>
   <div class="gauge-model">
     <div class="gauge-echart">
-      <div :id="id" style="height: 380px;width: 240px;"></div>
+      <div :id="id" style="height: 380px;"></div>
     </div>
     <div class="text-1" style="margin-top: -104px;">
       {{name}}
@@ -49,14 +49,14 @@
   }
 </script>
 
-<style lang="scss" rel="stylesheet/scss">
+<style lang="scss" rel="stylesheet/scss" scoped>
   .gauge-model {
     width: 100%;
     height: 360px;
     overflow: hidden;
     margin:  0 auto;
     .gauge-echart {
-      width: 200px;
+      width: 100%!important;
       margin:  auto;
       margin-bottom: -80px;
     }
