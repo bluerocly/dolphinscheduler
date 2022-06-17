@@ -17,7 +17,7 @@
 <template>
   <div class="gauge-model">
     <div class="gauge-echart">
-      <div :id="id" style="height: 380px;"></div>
+      <div :id="id" style="height: 380px;width: 240px;"></div>
     </div>
     <div class="text-1" style="margin-top: -104px;">
       {{name}}
@@ -56,7 +56,7 @@
     overflow: hidden;
     margin:  0 auto;
     .gauge-echart {
-      width: 350px;
+      width: 200px;
       margin:  auto;
       margin-bottom: -80px;
     }

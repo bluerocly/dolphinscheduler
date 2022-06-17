@@ -38,6 +38,14 @@ public class OSUtilsTest {
         logger.info("memoryUsage : {}", memoryUsage);
         Assert.assertTrue(memoryUsage >= 0.0);
     }
+    
+    @Test
+    public void diskAvailable() {
+        double diskAvailable = OSUtils.diskAvailable();
+        logger.info("diskAvailable : {}", diskAvailable);
+        Assert.assertTrue(diskAvailable >= 0.0);
+    }
+
 
     @Test
     public void loadAverage() {
