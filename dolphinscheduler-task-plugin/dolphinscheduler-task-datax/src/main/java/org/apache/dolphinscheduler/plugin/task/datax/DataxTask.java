@@ -458,6 +458,11 @@ public class DataxTask extends AbstractTaskExecutor {
         	ftpFileSuffix = ".csv";
         }
         
+        String ftpDateFormat = dataXParameters.getFtpDateFormat();
+        if(StringUtils.isEmpty(ftpDateFormat)) {
+        	ftpDateFormat = "yyyy-MM-dd HH:mm:ss";
+        }
+        
         ObjectNode writerParam = JSONUtils.createObjectNode();
         writerParam.put("protocol", protocol);
         writerParam.put("host", host);
@@ -473,7 +478,7 @@ public class DataxTask extends AbstractTaskExecutor {
         writerParam.put("fieldDelimiter",fieldDelimiter);
         writerParam.put("encoding", ftpEncoding);
         writerParam.put("nullFormat", "");
-//        writerParam.put("dateFormat", "yyyy-MM-dd");
+        writerParam.put("dateFormat", ftpDateFormat);
         writerParam.put("fileFormat", "csv");
         writerParam.put("suffix", ftpFileSuffix);
         

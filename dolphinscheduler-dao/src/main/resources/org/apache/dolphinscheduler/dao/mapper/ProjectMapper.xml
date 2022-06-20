@@ -82,12 +82,12 @@
         	join t_ds_process_definition d on d.code=t.process_definition_code
         	join t_ds_project p1 on p1.code=d.project_code
 			where t.state=6 and t.is_sub_process = 0 and d.project_code = p.code
-				and t.start_time <![CDATA[ >= ]]> date_sub(curdate(),interval 1 day) ) as inst_failure_count,
+				and t.start_time <![CDATA[ > ]]> date_sub(now(),interval 1 day) ) as inst_failure_count,
         (select count(0) from t_ds_task_instance t
 	            left join t_ds_task_definition_log d on d.code=t.task_code and d.version=t.task_definition_version
 	            left join t_ds_project p1 on p1.code=d.project_code
           	where t.state = 6 and d.project_code = p.code
-                and t.start_time <![CDATA[ >= ]]> date_sub(curdate(),interval 1 day) ) as task_failure_count
+                and t.start_time <![CDATA[ > ]]> date_sub(now(),interval 1 day) ) as task_failure_count
         <if test="searchName!=null and searchName != ''">
           	, pc.name as process_name
           	, pc.description as process_description
@@ -115,7 +115,7 @@
             OR p.description LIKE concat('%', #{searchName}, '%')
             ) OR pc.name  LIKE concat('%', #{searchName}, '%')
         </if>
-        order by p.create_time desc
+        order by task_failure_count desc, p.create_time desc
     </select>
     <select id="queryAuthedProjectListByUserId" resultType="org.apache.dolphinscheduler.dao.entity.Project">
         select

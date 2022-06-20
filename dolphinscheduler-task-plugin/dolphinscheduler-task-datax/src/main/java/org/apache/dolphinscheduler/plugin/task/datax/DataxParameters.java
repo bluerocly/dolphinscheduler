@@ -105,6 +105,7 @@ public class DataxParameters extends AbstractParameters {
     private String ftpEncoding;
     private String ftpHeader;
     private String ftpFileSuffix;
+    private String ftpDateFormat;
     private String subdirectory;
     private Boolean notification;
     private String queueName;
@@ -122,13 +123,17 @@ public class DataxParameters extends AbstractParameters {
 		return ftpFileSuffix;
 	}
 
-
-
 	public void setFtpFileSuffix(String ftpFileSuffix) {
 		this.ftpFileSuffix = ftpFileSuffix;
 	}
+	
+	public String getFtpDateFormat() {
+		return ftpDateFormat;
+	}
 
-
+	public void setFtpDateFormat(String ftpDateFormat) {
+		this.ftpDateFormat = ftpDateFormat;
+	}
 
 	public String getFileName() {
 		return fileName;

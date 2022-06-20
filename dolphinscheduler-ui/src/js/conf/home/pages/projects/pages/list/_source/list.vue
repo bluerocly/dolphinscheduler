@@ -33,7 +33,13 @@
         <el-table-column prop="defCount" :label="$t('Process Define Count')"></el-table-column>
         <el-table-column prop="instRunningCount" :label="$t('Process Instance Running Count')"></el-table-column>
         <el-table-column prop="instFailureCount" :label="$t('Process Instance Failure Count')"></el-table-column>
-        <el-table-column prop="taskFailureCount" :label="$t('Task Instance Failure Count')"></el-table-column>
+        <el-table-column :label="$t('Task Instance Failure Count')">
+          <template slot-scope="scope">
+            <span v-if="scope.row.taskFailureCount > 0" class="has_failed">{{scope.row.taskFailureCount}}</span>
+            <span v-else-if="scope.row.taskFailureCount === 0">{{scope.row.taskFailureCount}}</span>
+          </template>
+        </el-table-column>
+        
         <el-table-column :label="$t('Description')" width="200">
           <template slot-scope="scope">
             <span>{{scope.row.description | filterNull}}</span>
@@ -151,3 +157,11 @@
     components: { }
   }
 </script>
+
+<style lang="scss" rel="stylesheet/scss" scoped>
+  .has_failed {
+    background-color: #ffc107;
+    color: #fff;
+    padding: 3px;
+  }
+</style>
