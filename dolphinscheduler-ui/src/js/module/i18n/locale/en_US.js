@@ -301,7 +301,7 @@ export default {
   'FTP Encoding': 'Encoding',
   'FTP header': 'file header',
   'FTP file suffix': 'ftp file suffix',
-  'FTP Date Format': FTP Date Format',
+  'FTP Date Format': 'FTP Date Format',
   'FTP Field Delimiter example': ' default | ',
   'FTP Encoding example': 'default UTF-8',
   'FTP header example': 'default no header; * with sql column; other example: id, name, age',
