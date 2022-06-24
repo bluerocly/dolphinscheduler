@@ -207,7 +207,7 @@ public class SqlTask extends AbstractTaskExecutor {
                 String executeUpdateCount = String.valueOf(executeUpdate);
                 if(sqlParameters.getVarPool() != null) {
                 	sqlParameters.getVarPool().add(new Property(Constants.TASK_EXECUTE_COUNT, Direct.OUT, DataType.VARCHAR, executeUpdateCount));
-                	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
+                	logger.info("add taskExecuteCount[{}] to varpool", executeUpdateCount);
                 }
                 if(executeUpdate == 0) {
                 	logger.error("executeUpdate is 0. please check the flow's data.");
