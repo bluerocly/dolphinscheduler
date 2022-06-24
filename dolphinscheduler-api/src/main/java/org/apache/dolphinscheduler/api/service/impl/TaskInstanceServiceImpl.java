@@ -149,7 +149,7 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
             	List<Property> properties = JSONUtils.toList(varPool, Property.class);
             	if (org.apache.commons.collections.CollectionUtils.isNotEmpty(properties)) {
             		for (Property info : properties) {
-            			if (info.getDirect() == Direct.OUT && Constants.TASK_EXECUTE_COUNT.equals(info.getProp())) {
+            			if (info.getDirect() == Direct.OUT && Constants.TASK_DATA_COUNT.equals(info.getProp())) {
             				taskInstance.setTaskExecuteCount(info.getValue());
             				break;
             			}

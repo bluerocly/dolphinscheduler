@@ -206,7 +206,7 @@ public class SqlTask extends AbstractTaskExecutor {
             	int executeUpdate = stmt.executeUpdate();
                 String executeUpdateCount = String.valueOf(executeUpdate);
                 if(sqlParameters.getVarPool() != null) {
-                	sqlParameters.getVarPool().add(new Property(Constants.TASK_EXECUTE_COUNT, Direct.OUT, DataType.VARCHAR, executeUpdateCount));
+                	sqlParameters.getVarPool().add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, executeUpdateCount));
                 	logger.info("add taskExecuteCount[{}] to varpool", executeUpdateCount);
                 }
                 if(executeUpdate == 0) {
@@ -240,6 +240,13 @@ public class SqlTask extends AbstractTaskExecutor {
                 result = JSONUtils.toJsonString(updateRL);
                 break;
             }
+        }
+        if(result == null) {
+        	List<Map<String, String>> updateRL = new ArrayList<>();
+            Map<String, String> updateRM = new HashMap<>();
+            updateRM.put(Constants.TASK_DATA_COUNT, updateResult);
+            updateRL.add(updateRM);
+            result = JSONUtils.toJsonString(updateRL);
         }
         return result;
     }

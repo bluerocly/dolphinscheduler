@@ -197,7 +197,7 @@ public class DataxTask extends AbstractTaskExecutor {
 //            	throw new Exception("ftpwriter's write num is 0. please check the flow.");
             }
             if(dataXParameters.getVarPool() != null) {
-            	dataXParameters.getVarPool().add(new Property(Constants.TASK_EXECUTE_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
+            	dataXParameters.getVarPool().add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
             	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
             }
             String result = setDataxNonQuerySqlReturn(""+writeNum, dataXParameters.getLocalParams());
@@ -241,6 +241,13 @@ public class DataxTask extends AbstractTaskExecutor {
                 result = JSONUtils.toJsonString(updateRL);
                 break;
             }
+        }
+        if(result == null) {
+        	List<Map<String, String>> updateRL = new ArrayList<>();
+            Map<String, String> updateRM = new HashMap<>();
+            updateRM.put(Constants.TASK_DATA_COUNT, updateResult);
+            updateRL.add(updateRM);
+            result = JSONUtils.toJsonString(updateRL);
         }
         return result;
     }

@@ -206,5 +206,5 @@ public class Constants {
     public static final String DATASOURCE_ENCRYPTION_ENABLE = "datasource.encryption.enable";
     public static final String DATASOURCE_ENCRYPTION_SALT = "datasource.encryption.salt";
     
-    public static final String TASK_EXECUTE_COUNT = "taskExecuteCount";
+    public static final String TASK_DATA_COUNT = "taskDataCount";
 }
