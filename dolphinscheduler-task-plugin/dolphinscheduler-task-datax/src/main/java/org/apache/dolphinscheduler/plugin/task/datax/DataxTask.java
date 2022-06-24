@@ -191,6 +191,7 @@ public class DataxTask extends AbstractTaskExecutor {
             if(writeNum == readerNum+1) {
             	writeNum = readerNum;
             }
+//            writeNum = 100; // by win test
             if(writeNum == 0) {
             	logger.error("ftpwriter's write num is 0. please check the flow's data.");
             	setExitStatusCode(EXIT_CODE_FAILURE);
@@ -200,8 +201,6 @@ public class DataxTask extends AbstractTaskExecutor {
             	dataXParameters.getVarPool().add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
             	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
             }
-            String result = setDataxNonQuerySqlReturn(""+writeNum, dataXParameters.getLocalParams());
-            
             if(dataXParameters.getNotification()==null || dataXParameters.getNotification()) {
             	String topicName = dataXParameters.getQueueName();
             	String msgContent = dataXParameters.getMessagejson();
@@ -222,7 +221,7 @@ public class DataxTask extends AbstractTaskExecutor {
             	logger.info("send topicName[{}], msgContent [{}] to alert." , topicName, msgContent);
             	sendNotify(dataXParameters.getGroupId(), topicName, msgContent);
             }
-            dataXParameters.dealOutParam(result);
+//            dataXParameters.dealOutParam(result);
             
         } catch (Exception e) {
             setExitStatusCode(EXIT_CODE_FAILURE);
