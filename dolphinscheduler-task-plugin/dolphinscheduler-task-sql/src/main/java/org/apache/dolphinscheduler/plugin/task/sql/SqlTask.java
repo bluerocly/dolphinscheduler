@@ -24,6 +24,7 @@ import org.apache.dolphinscheduler.plugin.task.api.AbstractTaskExecutor;
 import org.apache.dolphinscheduler.plugin.task.api.TaskException;
 import org.apache.dolphinscheduler.plugin.task.util.MapUtils;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
+import org.apache.dolphinscheduler.spi.enums.DataType;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 import org.apache.dolphinscheduler.spi.enums.TaskTimeoutStrategy;
 import org.apache.dolphinscheduler.spi.task.AbstractParameters;
@@ -36,10 +37,13 @@ import org.apache.dolphinscheduler.spi.task.paramparser.ParameterUtils;
 import org.apache.dolphinscheduler.spi.task.request.SQLTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.TaskRequest;
 import org.apache.dolphinscheduler.spi.task.request.UdfFuncRequest;
+import org.apache.dolphinscheduler.spi.utils.Constants;
 import org.apache.dolphinscheduler.spi.utils.JSONUtils;
 import org.apache.dolphinscheduler.spi.utils.StringUtils;
 
 import org.apache.commons.collections.CollectionUtils;
+
+import static org.apache.dolphinscheduler.spi.task.TaskConstants.EXIT_CODE_FAILURE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -199,9 +203,19 @@ public class SqlTask extends AbstractTaskExecutor {
 
             } else if (sqlParameters.getSqlType() == SqlType.NON_QUERY.ordinal()) {
                 // non query statement
-                String updateResult = String.valueOf(stmt.executeUpdate());
-                logger.info("execute sql return updateResult = {}." ,updateResult);
-                result = setNonQuerySqlReturn(updateResult, sqlParameters.getLocalParams());
+            	int executeUpdate = stmt.executeUpdate();
+                String executeUpdateCount = String.valueOf(executeUpdate);
+                if(sqlParameters.getVarPool() != null) {
+                	sqlParameters.getVarPool().add(new Property(Constants.TASK_EXECUTE_COUNT, Direct.OUT, DataType.VARCHAR, executeUpdateCount));
+                	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
+                }
+                if(executeUpdate == 0) {
+                	logger.error("executeUpdate is 0. please check the flow's data.");
+                	setExitStatusCode(EXIT_CODE_FAILURE);
+//                	throw new Exception("ftpwriter's write num is 0. please check the flow.");
+                }
+                logger.info("execute sql return updateResult = {}." ,executeUpdateCount);
+                result = setNonQuerySqlReturn(executeUpdateCount, sqlParameters.getLocalParams());
             }
             logger.info("execute sql return result = {} ." + result);
             //deal out params

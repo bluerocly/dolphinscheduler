@@ -143,10 +143,11 @@ public class TaskExecuteResponseCommand implements Serializable {
                 + ", endTime=" + endTime
                 + ", processId=" + processId
                 + ", appIds='" + appIds + '\''
+                + ", varPool='" + varPool + '\''
                 + '}';
     }
 
-    public int getProcessInstanceId() {
+	public int getProcessInstanceId() {
         return processInstanceId;
     }
 

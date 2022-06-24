@@ -53,6 +53,11 @@
             <span>{{scope.row.endTime | formatDate}}</span>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('TaskExecuteCount')">
+          <template slot-scope="scope">
+            <span>{{scope.row.taskExecuteCount | filterNull}}</span>
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('Duration')">
           <template slot-scope="scope">
             <span>{{scope.row.duration | filterNull}}</span>

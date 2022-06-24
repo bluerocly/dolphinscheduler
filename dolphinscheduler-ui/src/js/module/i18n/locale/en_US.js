@@ -345,6 +345,7 @@ export default {
   'Node Type': 'Node Type',
   'Submit Time': 'Submit Time',
   Duration: 'Duration',
+  TaskExecuteCount: 'TaskExecuteCount',
   'Retry Count': 'Retry Count',
   'Task Name': 'Task Name',
   'Task Date': 'Task Date',

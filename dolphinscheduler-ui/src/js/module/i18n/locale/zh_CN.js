@@ -344,6 +344,7 @@ export default {
   'Node Type': '节点类型',
   'Submit Time': '提交时间',
   Duration: '运行时长',
+  TaskExecuteCount: '条数',
   'Retry Count': '重试次数',
   'Task Name': '任务名称',
   'Task Date': '任务日期',

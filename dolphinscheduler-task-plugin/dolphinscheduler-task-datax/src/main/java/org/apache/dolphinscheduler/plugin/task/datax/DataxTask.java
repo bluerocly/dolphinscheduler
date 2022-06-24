@@ -55,9 +55,11 @@ import org.apache.dolphinscheduler.plugin.task.api.TaskResponse;
 import org.apache.dolphinscheduler.plugin.task.util.MapUtils;
 import org.apache.dolphinscheduler.plugin.task.util.OSUtils;
 import org.apache.dolphinscheduler.spi.datasource.BaseConnectionParam;
+import org.apache.dolphinscheduler.spi.enums.DataType;
 import org.apache.dolphinscheduler.spi.enums.DbType;
 import org.apache.dolphinscheduler.spi.enums.Flag;
 import org.apache.dolphinscheduler.spi.task.AbstractParameters;
+import org.apache.dolphinscheduler.spi.task.Direct;
 import org.apache.dolphinscheduler.spi.task.Property;
 import org.apache.dolphinscheduler.spi.task.TaskAlertInfo;
 import org.apache.dolphinscheduler.spi.task.TaskConstants;
@@ -178,24 +180,29 @@ public class DataxTask extends AbstractTaskExecutor {
             
             // 增加日志解析获取指标？还是发
             // 发送通知消息
-            if(dataXParameters.getNotification()==null || dataXParameters.getNotification()) {
-            	String varPool = shellCommandExecutor.getVarPool();
-            	Map<String, String> mapByString = DataxParameters.getMapByString(varPool);
-            	int readerNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_READER_NUM, "0"));
+            String varPool = shellCommandExecutor.getVarPool();
+            Map<String, String> mapByString = DataxParameters.getMapByString(varPool);
+            int readerNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_READER_NUM, "0"));
 //            	int errorNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_ERROR_NUM, "0"));
 //            	int avgFlow = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_AVERAGE_FLOW, "0").replace("B/s", ""));
 //            	int totalTime = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_TOTAL_TIME, "0").replace("s", ""));
-            	int writeNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_NUM, "0"));
-            	int writeSize = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_BYTES, "0"));
-            	
-            	if(writeNum == readerNum+1) {
-            		writeNum = readerNum;
-            	}
-            	if(writeNum == 0) {
-                    logger.error("ftpwriter's write num is 0. please check the flow.");
-                    setExitStatusCode(EXIT_CODE_FAILURE);
-//                    throw new Exception("ftpwriter's write num is 0. please check the flow.");
-            	}
+            int writeNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_NUM, "0"));
+            int writeSize = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_BYTES, "0"));
+            if(writeNum == readerNum+1) {
+            	writeNum = readerNum;
+            }
+            if(writeNum == 0) {
+            	logger.error("ftpwriter's write num is 0. please check the flow's data.");
+            	setExitStatusCode(EXIT_CODE_FAILURE);
+//            	throw new Exception("ftpwriter's write num is 0. please check the flow.");
+            }
+            if(dataXParameters.getVarPool() != null) {
+            	dataXParameters.getVarPool().add(new Property(Constants.TASK_EXECUTE_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
+            	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
+            }
+            String result = setDataxNonQuerySqlReturn(""+writeNum, dataXParameters.getLocalParams());
+            
+            if(dataXParameters.getNotification()==null || dataXParameters.getNotification()) {
             	String topicName = dataXParameters.getQueueName();
             	String msgContent = dataXParameters.getMessagejson();
             	
@@ -215,12 +222,27 @@ public class DataxTask extends AbstractTaskExecutor {
             	logger.info("send topicName[{}], msgContent [{}] to alert." , topicName, msgContent);
             	sendNotify(dataXParameters.getGroupId(), topicName, msgContent);
             }
-            dataXParameters.dealOutParam(varPool);
+            dataXParameters.dealOutParam(result);
             
         } catch (Exception e) {
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw e;
         }
+    }
+    
+    private String setDataxNonQuerySqlReturn(String updateResult, List<Property> properties) {
+        String result = null;
+        for (Property info : properties) {
+            if (Direct.OUT == info.getDirect()) {
+                List<Map<String, String>> updateRL = new ArrayList<>();
+                Map<String, String> updateRM = new HashMap<>();
+                updateRM.put(info.getProp(), updateResult);
+                updateRL.add(updateRM);
+                result = JSONUtils.toJsonString(updateRL);
+                break;
+            }
+        }
+        return result;
     }
     
     /**

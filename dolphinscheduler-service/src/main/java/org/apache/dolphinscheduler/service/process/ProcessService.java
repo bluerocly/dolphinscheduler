@@ -127,6 +127,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -2669,21 +2670,22 @@ public class ProcessService {
 
 	private Command trans2Command(CommandPush commandPush) {
 		Command command = new Command();
-		try {
-			Class clazz = CommandPush.class;
-			Field[] fields = clazz.getFields();// Gives all declared public fields and inherited public fields of Super
-												// class
-			for (Field field : fields) {
-				Class type = field.getType();
-				Object obj = field.get(commandPush);
-				if ("depDataNames,onlineFlag".contains(field.getName())) {
-					continue;
-				}
-				command.getClass().getField(field.getName()).set(command, obj);
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		BeanUtils.copyProperties(commandPush, command);
+//		try {
+//			Class clazz = CommandPush.class;
+//			Field[] fields = clazz.getFields();// Gives all declared public fields and inherited public fields of Super
+//												// class
+//			for (Field field : fields) {
+//				Class type = field.getType();
+//				Object obj = field.get(commandPush);
+//				if ("depDataNames,onlineFlag".contains(field.getName())) {
+//					continue;
+//				}
+//				command.getClass().getField(field.getName()).set(command, obj);
+//			}
+//		} catch (Exception ex) {
+//			ex.printStackTrace();
+//		}
 
 		return command;
 	}

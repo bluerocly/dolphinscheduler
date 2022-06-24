@@ -41,6 +41,7 @@ import org.apache.dolphinscheduler.service.process.ProcessService;
 import org.apache.dolphinscheduler.service.quartz.cron.CronUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -595,15 +596,16 @@ public class ExecutorServiceImpl extends BaseServiceImpl implements ExecutorServ
 
     private CommandPush trans2CommandPush(Command command, String depDateNames, String depDataTimeReplacedName, int onlineFlag) {
     	CommandPush commandPush = new CommandPush();
-    	 try{
-    	        Class clazz = Command.class;
-    	        Field[] fields = clazz.getFields();//Gives all declared public fields and inherited public fields of Super class
-    	        for ( Field field : fields ) {
-    	            Class type = field.getType();
-    	            Object obj = field.get(command);
-    	            commandPush.getClass().getField(field.getName()).set(commandPush,obj);
-    	        }
-    	        }catch(Exception ex){ex.printStackTrace();}
+    	BeanUtils.copyProperties(command, commandPush);
+//    	try{
+//    	        Class clazz = Command.class;
+//    	        Field[] fields = clazz.getFields();//Gives all declared public fields and inherited public fields of Super class
+//    	        for ( Field field : fields ) {
+//    	            Class type = field.getType();
+//    	            Object obj = field.get(command);
+//    	            commandPush.getClass().getField(field.getName()).set(commandPush,obj);
+//    	        }
+//    	        }catch(Exception ex){ex.printStackTrace();}
     	
     	commandPush.setDepDataNames(String.format("%s%s%s", Constants.COMMA, depDateNames, Constants.COMMA));
     	commandPush.setDepDataTimeReplacedName(depDataTimeReplacedName);

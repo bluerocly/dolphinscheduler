@@ -40,103 +40,103 @@ public class Command {
      * id
      */
     @TableId(value = "id", type = IdType.AUTO)
-    public int id;
+    private int id;
 
     /**
      * command type
      */
     @TableField("command_type")
-    public CommandType commandType;
+    private CommandType commandType;
 
     /**
      * process definition code
      */
     @TableField("process_definition_code")
-    public long processDefinitionCode;
+    private long processDefinitionCode;
 
     /**
      * executor id
      */
     @TableField("executor_id")
-    public int executorId;
+    private int executorId;
 
     /**
      * command parameter, format json
      */
     @TableField("command_param")
-    public String commandParam;
+    private String commandParam;
 
     /**
      * task depend type
      */
     @TableField("task_depend_type")
-    public TaskDependType taskDependType;
+    private TaskDependType taskDependType;
 
     /**
      * failure strategy
      */
     @TableField("failure_strategy")
-    public FailureStrategy failureStrategy;
+    private FailureStrategy failureStrategy;
 
     /**
      * warning type
      */
     @TableField("warning_type")
-    public WarningType warningType;
+    private WarningType warningType;
 
     /**
      * warning group id
      */
     @TableField("warning_group_id")
-    public Integer warningGroupId;
+    private Integer warningGroupId;
 
     /**
      * schedule time
      */
     @TableField("schedule_time")
-    public Date scheduleTime;
+    private Date scheduleTime;
 
     /**
      * start time
      */
     @TableField("start_time")
-    public Date startTime;
+    private Date startTime;
 
     /**
      * process instance priority
      */
     @TableField("process_instance_priority")
-    public Priority processInstancePriority;
+    private Priority processInstancePriority;
 
     /**
      * update time
      */
     @TableField("update_time")
-    public Date updateTime;
+    private Date updateTime;
 
     /**
      * worker group
      */
     @TableField("worker_group")
-    public String workerGroup;
+    private String workerGroup;
 
     /**
      * environment code
      */
     @TableField("environment_code")
-    public Long environmentCode;
+    private Long environmentCode;
 
     /**
      * dry run flag
      */
     @TableField("dry_run")
-    public int dryRun;
+    private int dryRun;
 
     @TableField("process_instance_id")
-    public int processInstanceId;
+    private int processInstanceId;
 
     @TableField("process_definition_version")
-    public int processDefinitionVersion;
+    private int processDefinitionVersion;
 
     public Command() {
         this.taskDependType = TaskDependType.TASK_POST;

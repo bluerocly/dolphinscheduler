@@ -268,13 +268,27 @@ public class TaskInstance implements Serializable {
      * dry run flag
      */
     private int dryRun;
-
-    public void init(String host, Date startTime, String executePath) {
+    
+    /**
+     * data time string
+     */
+    @TableField(exist = false)
+    private String taskExecuteCount;
+    
+	public void init(String host, Date startTime, String executePath) {
         this.host = host;
         this.startTime = startTime;
         this.executePath = executePath;
     }
 
+    public String getTaskExecuteCount() {
+		return taskExecuteCount;
+	}
+
+	public void setTaskExecuteCount(String taskExecuteCount) {
+		this.taskExecuteCount = taskExecuteCount;
+	}
+	
     public String getVarPool() {
         return varPool;
     }
@@ -691,6 +705,7 @@ public class TaskInstance implements Serializable {
                 + ", executorName='" + executorName + '\''
                 + ", delayTime=" + delayTime
                 + ", dryRun=" + dryRun
+                + ", taskExecuteCount=" + taskExecuteCount
                 + '}';
     }
 

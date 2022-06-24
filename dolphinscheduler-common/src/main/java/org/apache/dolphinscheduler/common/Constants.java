@@ -1105,4 +1105,6 @@ public final class Constants {
     public static final String COMMAND_PUSH_ONLINE_FLAG = "push_online_flag";
     
     public static final String DATA_TIME_PARAMETER_NAME = "g_start_time"; // 工作流实例中显示的时间
+    public static final String TASK_EXECUTE_COUNT = "taskExecuteCount";
+    
 }

@@ -25,9 +25,12 @@ import org.apache.dolphinscheduler.api.service.UsersService;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
+import org.apache.dolphinscheduler.common.enums.Direct;
 import org.apache.dolphinscheduler.common.enums.ExecutionStatus;
+import org.apache.dolphinscheduler.common.process.Property;
 import org.apache.dolphinscheduler.common.utils.CollectionUtils;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
+import org.apache.dolphinscheduler.common.utils.JSONUtils;
 import org.apache.dolphinscheduler.dao.entity.Project;
 import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
 import org.apache.dolphinscheduler.dao.entity.TaskInstance;
@@ -36,6 +39,7 @@ import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskInstanceMapper;
 import org.apache.dolphinscheduler.service.process.ProcessService;
+import org.apache.dolphinscheduler.spi.utils.StringUtils;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -140,6 +144,18 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
 
         for (TaskInstance taskInstance : taskInstanceList) {
             taskInstance.setDuration(DateUtils.format2Duration(taskInstance.getStartTime(), taskInstance.getEndTime()));
+            String varPool = taskInstance.getVarPool();
+            if(StringUtils.isNotEmpty(varPool)) {
+            	List<Property> properties = JSONUtils.toList(varPool, Property.class);
+            	if (org.apache.commons.collections.CollectionUtils.isNotEmpty(properties)) {
+            		for (Property info : properties) {
+            			if (info.getDirect() == Direct.OUT && Constants.TASK_EXECUTE_COUNT.equals(info.getProp())) {
+            				taskInstance.setTaskExecuteCount(info.getValue());
+            				break;
+            			}
+            		}
+            	}
+            }
             User executor = usersService.queryUser(taskInstance.getExecutorId());
             if (null != executor) {
                 taskInstance.setExecutorName(executor.getUserName());
