@@ -78,7 +78,7 @@ public final class KafkaSender {
 //    		long offset = send.get().offset();
 //    		alertResult.setMessage(offset+"");
     	    alertResult.setStatus("true");
-    	    log.info(String.format("Send message to kafka success, servers[%s], topic[%s], content[%s].", topic, content));
+    	    log.info(String.format("Send message to kafka success, servers[%s], topic[%s], content[%s].", this.servers, topic, content));
             return alertResult;
         } catch (Exception e) {
             log.error(String.format("Send message to kafka error, servers[%s], topic[%s], content[%s].", this.servers, topic, content), e);
@@ -86,4 +86,10 @@ public final class KafkaSender {
             return alertResult;
         }
     }
+
+	public void close() {
+		if(producer != null) {
+			producer.close();
+		}
+	}
 }
