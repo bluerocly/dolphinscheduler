@@ -122,7 +122,48 @@ public class DataxParameters extends AbstractParameters {
     
     @Override
     public void dealOutParam(String result) {
-        super.dealOutParam(result);
+        if (CollectionUtils.isEmpty(localParams)) {
+            return;
+        }
+        List<Property> outProperty = getOutProperty(localParams);
+        if (CollectionUtils.isEmpty(outProperty)) {
+            return;
+        }
+        if (StringUtils.isEmpty(result)) {
+            varPool.addAll(outProperty);
+            return;
+        }
+        List<Map<String, String>> sqlResult = getListMapByString(result);
+        if (CollectionUtils.isEmpty(sqlResult)) {
+            return;
+        }
+        //if sql return more than one line
+        if (sqlResult.size() > 1) {
+            Map<String, List<String>> sqlResultFormat = new HashMap<>();
+            //init sqlResultFormat
+            Set<String> keySet = sqlResult.get(0).keySet();
+            for (String key : keySet) {
+                sqlResultFormat.put(key, new ArrayList<>());
+            }
+            for (Map<String, String> info : sqlResult) {
+                for (String key : info.keySet()) {
+                    sqlResultFormat.get(key).add(String.valueOf(info.get(key)));
+                }
+            }
+            for (Property info : outProperty) {
+                if (info.getType() == DataType.LIST) {
+                    info.setValue(JSONUtils.toJsonString(sqlResultFormat.get(info.getProp())));
+                    varPool.add(info);
+                }
+            }
+        } else {
+            //result only one line
+            Map<String, String> firstRow = sqlResult.get(0);
+            for (Property info : outProperty) {
+                info.setValue(String.valueOf(firstRow.get(info.getProp())));
+                varPool.add(info);
+            }
+        }
 
     }
     

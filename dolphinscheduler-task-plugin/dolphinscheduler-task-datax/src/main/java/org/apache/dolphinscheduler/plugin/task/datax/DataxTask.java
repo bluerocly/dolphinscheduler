@@ -159,7 +159,7 @@ public class DataxTask extends AbstractTaskExecutor {
     @Override
     public void handle() throws Exception {
         try {
-
+        	String result = null;
             // replace placeholder,and combine local and global parameters
             Map<String, Property> paramsMap = ParamUtils.convert(taskExecutionContext, getParameters());
             if (MapUtils.isEmpty(paramsMap)) {
@@ -197,6 +197,7 @@ public class DataxTask extends AbstractTaskExecutor {
             	setExitStatusCode(EXIT_CODE_FAILURE);
 //            	throw new Exception("ftpwriter's write num is 0. please check the flow.");
             }
+            result = setDataxNonQuerySqlReturn("" + writeNum, dataXParameters.getLocalParams());
             if(dataXParameters.getVarPool() != null) {
             	dataXParameters.getVarPool().add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
             	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
@@ -221,7 +222,7 @@ public class DataxTask extends AbstractTaskExecutor {
             	logger.info("send topicName[{}], msgContent [{}] to alert." , topicName, msgContent);
             	sendNotify(dataXParameters.getGroupId(), topicName, msgContent);
             }
-//            dataXParameters.dealOutParam(result);
+            dataXParameters.dealOutParam(result);
             
         } catch (Exception e) {
             setExitStatusCode(EXIT_CODE_FAILURE);
@@ -240,13 +241,6 @@ public class DataxTask extends AbstractTaskExecutor {
                 result = JSONUtils.toJsonString(updateRL);
                 break;
             }
-        }
-        if(result == null) {
-        	List<Map<String, String>> updateRL = new ArrayList<>();
-            Map<String, String> updateRM = new HashMap<>();
-            updateRM.put(Constants.TASK_DATA_COUNT, updateResult);
-            updateRL.add(updateRM);
-            result = JSONUtils.toJsonString(updateRL);
         }
         return result;
     }

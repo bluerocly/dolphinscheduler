@@ -241,13 +241,6 @@ public class SqlTask extends AbstractTaskExecutor {
                 break;
             }
         }
-        if(result == null) {
-        	List<Map<String, String>> updateRL = new ArrayList<>();
-            Map<String, String> updateRM = new HashMap<>();
-            updateRM.put(Constants.TASK_DATA_COUNT, updateResult);
-            updateRL.add(updateRM);
-            result = JSONUtils.toJsonString(updateRL);
-        }
         return result;
     }
 
