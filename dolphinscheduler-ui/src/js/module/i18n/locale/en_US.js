@@ -305,7 +305,7 @@ export default {
   'FTP Field Delimiter example': ' default | ',
   'FTP Encoding example': 'default UTF-8',
   'FTP header example': 'default no header; * with sql column; other example: id, name, age',
-  'FTP file suffix example': 'default none ,can define .csv etc.',
+  'FTP file suffix example': 'default .csv, none for no file suffix',
   'FTP date format example': 'default yyyy-MM-dd HH:mm:ss',
   'Please enter a FileName(required)': 'Please enter a FileName(required)',
   'Please enter a Subdirectory(required)': 'Please enter a Subdirectory(required)',

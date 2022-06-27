@@ -207,4 +207,5 @@ public class Constants {
     public static final String DATASOURCE_ENCRYPTION_SALT = "datasource.encryption.salt";
     
     public static final String TASK_DATA_COUNT = "taskDataCount";
+    public static final String FTP_FILE_SUFFIX_NONE = "none";
 }
