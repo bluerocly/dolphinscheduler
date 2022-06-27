@@ -304,7 +304,7 @@ export default {
   'FTP Field Delimiter example': '默认 | 分割',
   'FTP Encoding example': '默认 UTF-8',
   'FTP header example': '默认不加表头； * 按sql字段生成；其它自定义示例：id, name, age',
-  'FTP file suffix example': '默认 .csv',
+  'FTP file suffix example': '默认没有后缀，可使用.csv（有点）等',
   'FTP date format example': '默认 yyyy-MM-dd HH:mm:ss',
   'Please enter a FileName(required)': '请输入文件名称（必填）',
   'Please enter a Subdirectory(required)': '请输入目录（必填）',

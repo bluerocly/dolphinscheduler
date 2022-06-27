@@ -483,7 +483,8 @@ public class DataxTask extends AbstractTaskExecutor {
         }
         String ftpFileSuffix = dataXParameters.getFtpFileSuffix();
         if(StringUtils.isEmpty(ftpFileSuffix)) {
-        	ftpFileSuffix = ".csv";
+//        	ftpFileSuffix = ".csv";
+        	ftpFileSuffix = ""; // 默认置空，为了支持有些文件没有后缀名字
         }
         
         String ftpDateFormat = dataXParameters.getFtpDateFormat();

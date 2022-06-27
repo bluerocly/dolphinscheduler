@@ -181,7 +181,7 @@
           <span>{{$t('SpeedByte')}}</span>
         </div>
         <div slot="content">
-          <m-select-input v-model="jobSpeedByte" :list="[0,1,10,50,100,512]">
+          <m-select-input v-model="jobSpeedByte" :list="[0,1,50,100,512,1024,4096]">
           </m-select-input>
           <span>({{$t('0 means unlimited by byte')}})</span>
         </div>
@@ -191,7 +191,7 @@
           <span>{{$t('SpeedRecord')}}</span>
         </div>
         <div slot="content">
-          <m-select-input v-model="jobSpeedRecord" :list="[0,500,1000,1500,2000,2500,3000]">
+          <m-select-input v-model="jobSpeedRecord" :list="[0,1000,2000,5000,10000,20000,30000]">
           </m-select-input>
           <span>({{$t('0 means unlimited by count')}})</span>
         </div>
@@ -332,7 +332,7 @@
         // speed byte
         jobSpeedByte: 0,
         // speed record
-        jobSpeedRecord: 1000,
+        jobSpeedRecord: 5000,
         // Custom parameter
         localParams: [],
         customConfig: 0,
