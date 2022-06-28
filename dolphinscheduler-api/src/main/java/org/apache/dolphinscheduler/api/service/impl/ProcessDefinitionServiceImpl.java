@@ -253,15 +253,24 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
 		for(TaskDefinitionLog taskDefinitionLog : taskDefinitionLogs) {
 			String taskType = taskDefinitionLog.getTaskType();
             if(TaskType.DATAX.getDesc().equalsIgnoreCase(taskType)) {
-				Map<String, Object> taskParameters = JSONUtils.parseObject(
-						taskDefinitionLog.getTaskParams(), new TypeReference<Map<String, Object>>() {
-	                    });
 	        	List<Property> taskParamList = taskDefinitionLog .getTaskParamList();
-	        	taskParamList.add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""));
+	        	boolean outFlag = false;
+	        	for(Property tmp : taskParamList) {
+	        		if(Direct.OUT == tmp.getDirect()) {
+	        			outFlag = true;
+	        			break;
+	        		}
+	        	}
+	        	if(!outFlag) {
+	        		taskParamList.add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""));
+	        		Map<String, Object> taskParameters = JSONUtils.parseObject(
+	        				taskDefinitionLog.getTaskParams(), new TypeReference<Map<String, Object>>() {
+	        				});
 //	        	String taskParams = JSONUtils.toJsonString(taskParamList);
-	        	taskParameters.put("localParams", taskParamList);
-	        	String taskParametersStr = JSONUtils.toJsonString(taskParameters);
-	        	taskDefinitionLog.setTaskParams(taskParametersStr);
+	        		taskParameters.put("localParams", taskParamList);
+	        		String taskParametersStr = JSONUtils.toJsonString(taskParameters);
+	        		taskDefinitionLog.setTaskParams(taskParametersStr);
+	        	}
 			}
 		}
 	}
@@ -588,6 +597,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         }
         ProcessDefinition processDefinitionDeepCopy = JSONUtils.parseObject(JSONUtils.toJsonString(processDefinition), ProcessDefinition.class);
         processDefinition.set(projectCode, name, description, globalParams, locations, timeout, tenantId);
+        addDataxTaskDataCountOutParam(taskDefinitionLogs);
         return updateDagDefine(loginUser, taskRelationList, processDefinition, processDefinitionDeepCopy, taskDefinitionLogs);
     }
 
