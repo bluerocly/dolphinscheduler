@@ -34,6 +34,8 @@ import org.apache.dolphinscheduler.api.utils.FileUtils;
 import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.Result;
 import org.apache.dolphinscheduler.common.Constants;
+import org.apache.dolphinscheduler.common.enums.DataType;
+import org.apache.dolphinscheduler.common.enums.Direct;
 import org.apache.dolphinscheduler.common.enums.FailureStrategy;
 import org.apache.dolphinscheduler.common.enums.Priority;
 import org.apache.dolphinscheduler.common.enums.ReleaseState;
@@ -43,6 +45,7 @@ import org.apache.dolphinscheduler.common.enums.WarningType;
 import org.apache.dolphinscheduler.common.graph.DAG;
 import org.apache.dolphinscheduler.common.model.TaskNode;
 import org.apache.dolphinscheduler.common.model.TaskNodeRelation;
+import org.apache.dolphinscheduler.common.process.Property;
 import org.apache.dolphinscheduler.common.thread.Stopper;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils;
 import org.apache.dolphinscheduler.common.utils.CodeGenerateUtils.CodeGenerateException;
@@ -109,6 +112,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -241,10 +245,28 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         ProcessDefinition processDefinition = new ProcessDefinition(projectCode, name, processDefinitionCode, description,
                 globalParams, locations, timeout, loginUser.getId(), tenantId);
 
+        addDataxTaskDataCountOutParam(taskDefinitionLogs);
         return createDagDefine(loginUser, taskRelationList, processDefinition, taskDefinitionLogs);
     }
 
-    private Map<String, Object> createDagDefine(User loginUser,
+    private void addDataxTaskDataCountOutParam(List<TaskDefinitionLog> taskDefinitionLogs) {
+		for(TaskDefinitionLog taskDefinitionLog : taskDefinitionLogs) {
+			String taskType = taskDefinitionLog.getTaskType();
+            if(TaskType.DATAX.getDesc().equalsIgnoreCase(taskType)) {
+				Map<String, Object> taskParameters = JSONUtils.parseObject(
+						taskDefinitionLog.getTaskParams(), new TypeReference<Map<String, Object>>() {
+	                    });
+	        	List<Property> taskParamList = taskDefinitionLog .getTaskParamList();
+	        	taskParamList.add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""));
+//	        	String taskParams = JSONUtils.toJsonString(taskParamList);
+	        	taskParameters.put("localParams", taskParamList);
+	        	String taskParametersStr = JSONUtils.toJsonString(taskParameters);
+	        	taskDefinitionLog.setTaskParams(taskParametersStr);
+			}
+		}
+	}
+
+	private Map<String, Object> createDagDefine(User loginUser,
                                                 List<ProcessTaskRelationLog> taskRelationList,
                                                 ProcessDefinition processDefinition,
                                                 List<TaskDefinitionLog> taskDefinitionLogs) {

@@ -198,10 +198,11 @@ public class DataxTask extends AbstractTaskExecutor {
 //            	throw new Exception("ftpwriter's write num is 0. please check the flow.");
             }
             result = setDataxNonQuerySqlReturn("" + writeNum, dataXParameters.getLocalParams());
-            if(dataXParameters.getVarPool() != null) {
-            	dataXParameters.getVarPool().add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
-            	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
-            }
+            //使用添加datax默认outParameter参数，可实现，因为sql out参数是开放出去的，所以sql中增加了一下逻辑
+//            if(dataXParameters.getVarPool() != null) {
+//            	dataXParameters.getVarPool().add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""+writeNum));
+//            	logger.info("add taskExecuteCount[{}] to varpool", writeNum);
+//            }
             if(dataXParameters.getNotification()==null || dataXParameters.getNotification()) {
             	String topicName = dataXParameters.getQueueName();
             	String msgContent = dataXParameters.getMessagejson();

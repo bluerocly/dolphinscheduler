@@ -96,6 +96,7 @@ export default {
   'Please enter option parameters': 'Please enter option parameters',
   Resources: 'Resources',
   'Custom Parameters': 'Custom Parameters',
+  'Datax Custom Parameters': 'Custom Parameters(contain out parameter taskDataCount)',
   'Custom template': 'Custom template',
   Datasource: 'Datasource',
   methods: 'methods',

@@ -96,6 +96,7 @@ export default {
   'Please enter option parameters': '请输入选项参数',
   Resources: '资源',
   'Custom Parameters': '自定义参数',
+  'Datax Custom Parameters': '自定义参数（系统会生成输出参数taskDataCount）',
   'Custom template': '自定义模版',
   Datasource: '数据源',
   methods: '方法',

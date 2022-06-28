@@ -272,13 +272,13 @@
         </div>
     </m-list-box>
           <m-list-box>
-        <div slot="text">{{$t('Custom Parameters')}}</div>
+        <div slot="text">{{$t('Datax Custom Parameters')}}</div>
         <div slot="content">
           <m-local-params
                   ref="refLocalParams"
                   @on-local-params="_onLocalParams"
                   :udp-list="localParams"
-                  :hide="true">
+                  :hide="false">
           </m-local-params>
         </div>
       </m-list-box>
