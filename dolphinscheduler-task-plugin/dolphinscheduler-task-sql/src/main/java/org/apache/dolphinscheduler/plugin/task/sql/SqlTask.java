@@ -54,6 +54,7 @@ import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -220,6 +221,7 @@ public class SqlTask extends AbstractTaskExecutor {
             logger.info("execute sql return result = {} ." + result);
             //deal out params
             sqlParameters.dealOutParam(result);
+            removeInDirectTaskDataCount(sqlParameters.getVarPool());
             postSql(connection, postStatementsBinds);
         } catch (Exception e) {
             logger.error("execute sql error: {}", e.getMessage());
@@ -228,6 +230,18 @@ public class SqlTask extends AbstractTaskExecutor {
             close(resultSet, stmt, connection);
         }
     }
+    
+    private void removeInDirectTaskDataCount(List<Property> varPool) {
+    	if(CollectionUtils.isNotEmpty(varPool)) {
+    		Iterator<Property> iterator = varPool.iterator();
+    		while(iterator.hasNext()) {
+    			Property tmp = iterator.next();
+    			if(Direct.IN == tmp.getDirect() && Constants.TASK_DATA_COUNT.equalsIgnoreCase(tmp.getProp())) {
+    				iterator.remove();
+    			}
+    		}
+    	}
+	}
 
     private String setNonQuerySqlReturn(String updateResult, List<Property> properties) {
         String result = null;

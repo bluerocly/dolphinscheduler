@@ -37,6 +37,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,12 +183,12 @@ public class DataxTask extends AbstractTaskExecutor {
             // 发送通知消息
             String varPool = shellCommandExecutor.getVarPool();
             Map<String, String> mapByString = DataxParameters.getMapByString(varPool);
-            int readerNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_READER_NUM, "0"));
+            long readerNum = Long.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_READER_NUM, "0"));
 //            	int errorNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_ERROR_NUM, "0"));
 //            	int avgFlow = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_AVERAGE_FLOW, "0").replace("B/s", ""));
 //            	int totalTime = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_TOTAL_TIME, "0").replace("s", ""));
-            int writeNum = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_NUM, "0"));
-            int writeSize = Integer.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_BYTES, "0"));
+            long writeNum = Long.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_NUM, "0"));
+            long writeSize = Long.valueOf(mapByString.getOrDefault(TaskConstants.TASK_RECORD_WRITING_BYTES, "0"));
             if(writeNum == readerNum+1) {
             	writeNum = readerNum;
             }
@@ -224,14 +225,26 @@ public class DataxTask extends AbstractTaskExecutor {
             	sendNotify(dataXParameters.getGroupId(), topicName, msgContent);
             }
             dataXParameters.dealOutParam(result);
-            
+            removeInDirectTaskDataCount(dataXParameters.getVarPool());
         } catch (Exception e) {
             setExitStatusCode(EXIT_CODE_FAILURE);
             throw e;
         }
     }
     
-    private String setDataxNonQuerySqlReturn(String updateResult, List<Property> properties) {
+    private void removeInDirectTaskDataCount(List<Property> varPool) {
+    	if(CollectionUtils.isNotEmpty(varPool)) {
+    		Iterator<Property> iterator = varPool.iterator();
+    		while(iterator.hasNext()) {
+    			Property tmp = iterator.next();
+    			if(Direct.IN == tmp.getDirect() && Constants.TASK_DATA_COUNT.equalsIgnoreCase(tmp.getProp())) {
+    				iterator.remove();
+    			}
+    		}
+    	}
+	}
+
+	private String setDataxNonQuerySqlReturn(String updateResult, List<Property> properties) {
         String result = null;
         for (Property info : properties) {
             if (Direct.OUT == info.getDirect()) {

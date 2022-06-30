@@ -255,14 +255,18 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
             if(TaskType.DATAX.getDesc().equalsIgnoreCase(taskType)) {
 	        	List<Property> taskParamList = taskDefinitionLog .getTaskParamList();
 	        	boolean outFlag = false;
-	        	for(Property tmp : taskParamList) {
-	        		if(Direct.OUT == tmp.getDirect()) {
+	        	Iterator<Property> iterator = taskParamList.iterator();
+	        	while(iterator.hasNext()) {
+	        		Property tmp = iterator.next();
+	        		if(Direct.IN == tmp.getDirect() && Constants.TASK_DATA_COUNT.equalsIgnoreCase(tmp.getProp())) {
+	        			iterator.remove();
+	        		} else if(Direct.OUT == tmp.getDirect()) {
 	        			outFlag = true;
-	        			break;
+//	        			break;
 	        		}
 	        	}
 	        	if(!outFlag) {
-	        		taskParamList.add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.VARCHAR, ""));
+	        		taskParamList.add(new Property(Constants.TASK_DATA_COUNT, Direct.OUT, DataType.LONG, ""));
 	        		Map<String, Object> taskParameters = JSONUtils.parseObject(
 	        				taskDefinitionLog.getTaskParams(), new TypeReference<Map<String, Object>>() {
 	        				});
