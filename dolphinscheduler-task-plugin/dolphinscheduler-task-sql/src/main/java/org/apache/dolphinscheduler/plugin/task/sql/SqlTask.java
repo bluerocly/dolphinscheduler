@@ -211,8 +211,8 @@ public class SqlTask extends AbstractTaskExecutor {
                 	logger.info("add taskExecuteCount[{}] to varpool", executeUpdateCount);
                 }
                 if(executeUpdate == 0) {
-                	logger.error("executeUpdate is 0. please check the flow's data.");
-                	setExitStatusCode(EXIT_CODE_FAILURE);
+                	logger.warn("executeUpdate is 0. please check the flow's data.");
+//                	setExitStatusCode(EXIT_CODE_FAILURE);
 //                	throw new Exception("ftpwriter's write num is 0. please check the flow.");
                 }
                 logger.info("execute sql return updateResult = {}." ,executeUpdateCount);

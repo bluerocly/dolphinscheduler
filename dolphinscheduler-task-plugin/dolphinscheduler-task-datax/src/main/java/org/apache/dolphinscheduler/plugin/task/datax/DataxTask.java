@@ -194,8 +194,8 @@ public class DataxTask extends AbstractTaskExecutor {
             }
 //            writeNum = 100; // by win test
             if(writeNum == 0) {
-            	logger.error("ftpwriter's write num is 0. please check the flow's data.");
-            	setExitStatusCode(EXIT_CODE_FAILURE);
+            	logger.warn("ftpwriter's write num is 0. please check the flow's data.");
+//            	setExitStatusCode(EXIT_CODE_FAILURE);
 //            	throw new Exception("ftpwriter's write num is 0. please check the flow.");
             }
             result = setDataxNonQuerySqlReturn("" + writeNum, dataXParameters.getLocalParams());
