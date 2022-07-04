@@ -131,7 +131,8 @@
         <byte-buddy.version>1.9.16</byte-buddy.version>
         <java-websocket.version>1.5.1</java-websocket.version>
         <py4j.version>0.10.9</py4j.version>
-        <jna.version>4.5.1</jna.version>
+<!--  为了windows获取进程号，增加，2.0.6报错       <jna.version>4.5.1</jna.version> -->
+		<jna.version>5.10.0</jna.version>
         <auto-service.version>1.0.1</auto-service.version>
         <jacoco.skip>false</jacoco.skip>
         <netty.version>4.1.53.Final</netty.version>
