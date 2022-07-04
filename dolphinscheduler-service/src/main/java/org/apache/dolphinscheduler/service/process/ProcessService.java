@@ -2533,6 +2533,13 @@ public class ProcessService {
     public TaskDefinition findTaskDefinition(long taskCode, int taskDefinitionVersion) {
         return taskDefinitionLogMapper.queryByDefinitionCodeAndVersion(taskCode, taskDefinitionVersion);
     }
+    
+    /**
+     * find task definition by code
+     */
+    public TaskDefinition findTaskDefinitionByCode(long taskCode) {
+        return taskDefinitionMapper.queryByCode(taskCode);
+    }
 
     /**
      * find process task relation list by process

@@ -348,12 +348,16 @@ public class WorkflowExecuteThread implements Runnable {
             return true;
         }
         TaskTimeoutStrategy taskTimeoutStrategy = taskInstance.getTaskDefine().getTimeoutNotifyStrategy();
-        if (TaskTimeoutStrategy.FAILED == taskTimeoutStrategy && !taskInstance.getState().typeIsFinished()) {
+        if ((TaskTimeoutStrategy.FAILED == taskTimeoutStrategy || TaskTimeoutStrategy.WARNFAILED == taskTimeoutStrategy) && !taskInstance.getState().typeIsFinished()) {
             ITaskProcessor taskProcessor = activeTaskProcessorMaps.get(stateEvent.getTaskInstanceId());
             taskProcessor.action(TaskAction.TIMEOUT);
             if (taskInstance.isDependTask()) {
                 TaskInstance task = processService.findTaskInstanceById(taskInstance.getId());
                 taskFinished(task);
+            }
+            if (TaskTimeoutStrategy.WARNFAILED == taskTimeoutStrategy) {
+                ProjectUser projectUser = processService.queryProjectWithUserByProcessInstanceId(processInstance.getId());
+                processAlertManager.sendTaskTimeoutAlert(processInstance, taskInstance, projectUser);
             }
         } else {
             ProjectUser projectUser = processService.queryProjectWithUserByProcessInstanceId(processInstance.getId());
@@ -921,6 +925,10 @@ public class WorkflowExecuteThread implements Runnable {
             if (allProperty.size() > 0) {
                 taskInstance.setVarPool(JSONUtils.toJsonString(allProperty.values()));
             }
+        } else {
+            if (StringUtils.isNotEmpty(processInstance.getVarPool())) {
+                taskInstance.setVarPool(processInstance.getVarPool());
+            }
         }
     }
 
@@ -1116,6 +1124,22 @@ public class WorkflowExecuteThread implements Runnable {
             }
             if (errorTaskList.size() > 0) {
                 return true;
+            }
+        } else {
+            if (processInstance.getCommandType() == CommandType.RECOVER_TOLERANCE_FAULT_PROCESS
+                || processInstance.getCommandType() == CommandType.RECOVER_SUSPENDED_PROCESS) {
+                List<Integer> failedList = processService.findTaskIdByInstanceState(processInstance.getId(), ExecutionStatus.FAILURE);
+                if (!failedList.isEmpty()) {
+                    return true;
+                }
+                List<Integer> toleranceList = processService.findTaskIdByInstanceState(processInstance.getId(), ExecutionStatus.NEED_FAULT_TOLERANCE);
+                if (!toleranceList.isEmpty()) {
+                    return true;
+                }
+                List<Integer> killedList = processService.findTaskIdByInstanceState(processInstance.getId(), ExecutionStatus.KILL);
+                if (!killedList.isEmpty()) {
+                    return true;
+                }
             }
         }
         return dependFailedTask.size() > 0;
@@ -1406,10 +1430,9 @@ public class WorkflowExecuteThread implements Runnable {
                         this.processInstance.getId());
                 taskResponseService.addResponse(taskResponseEvent);
             }
+            this.taskRetryCheckList.remove(taskId);
+            this.depStateCheckList.remove(taskId);
         }
-
-        this.taskRetryCheckList.clear();
-        this.depStateCheckList.clear();
         this.addProcessStopEvent(processInstance);
     }
 
