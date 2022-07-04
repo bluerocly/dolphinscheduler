@@ -95,6 +95,11 @@ public class TaskResponseEvent {
 
     private int processInstanceId;
 
+    /**
+     *  request unique identification
+     */
+    private long opaque;
+
     public static TaskResponseEvent newActionStop(ExecutionStatus state,
                                                   int taskInstanceId,
                                                   int processInstanceId) {
@@ -148,6 +153,22 @@ public class TaskResponseEvent {
         return event;
     }
 
+    public static TaskResponseEvent newRecall(ExecutionStatus state,
+            Event event,
+            int taskInstanceId,
+            int processInstanceId,
+            Channel channel,
+            long opaque) {
+		TaskResponseEvent responseEvent = new TaskResponseEvent();
+		responseEvent.setEvent(event);
+		responseEvent.setState(state);
+		responseEvent.setTaskInstanceId(taskInstanceId);
+		responseEvent.setProcessInstanceId(processInstanceId);
+		responseEvent.setChannel(channel);
+		responseEvent.setOpaque(opaque);
+		return responseEvent;
+    }
+    
     public String getVarPool() {
         return varPool;
     }
@@ -250,5 +271,13 @@ public class TaskResponseEvent {
 
     public void setProcessInstanceId(int processInstanceId) {
         this.processInstanceId = processInstanceId;
+    }
+    
+    public long getOpaque() {
+        return opaque;
+    }
+
+    public void setOpaque(long opaque) {
+        this.opaque = opaque;
     }
 }

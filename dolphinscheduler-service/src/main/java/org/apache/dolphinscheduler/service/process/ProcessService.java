@@ -1037,6 +1037,13 @@ public class ProcessService {
         processInstanceMap.setProcessInstanceId(subProcessInstance.getId());
 
         this.updateWorkProcessInstanceMap(processInstanceMap);
+
+        TaskInstance subTask = this.findTaskInstanceById(processInstanceMap.getParentTaskInstanceId());
+        if (subTask != null && subTask.isSubProcess() && subTask.getState() == ExecutionStatus.SUBMITTED_SUCCESS) {
+            subTask.setState(ExecutionStatus.RUNNING_EXECUTION);
+            subTask.setStartTime(new Date());
+            this.updateTaskInstance(subTask);
+        }
     }
 
     /**
@@ -1356,33 +1363,15 @@ public class ProcessService {
      */
     public TaskInstance submitTaskInstanceToDB(TaskInstance taskInstance, ProcessInstance processInstance) {
         ExecutionStatus processInstanceState = processInstance.getState();
-
-        if (taskInstance.getState().typeIsFailure()) {
-            if (taskInstance.isSubProcess()) {
-                taskInstance.setRetryTimes(taskInstance.getRetryTimes() + 1);
-            } else {
-                if (processInstanceState != ExecutionStatus.READY_STOP
-                        && processInstanceState != ExecutionStatus.READY_PAUSE) {
-                    // failure task set invalid
-                    taskInstance.setFlag(Flag.NO);
-                    updateTaskInstance(taskInstance);
-                    // crate new task instance
-                    if (taskInstance.getState() != ExecutionStatus.NEED_FAULT_TOLERANCE) {
-                        taskInstance.setRetryTimes(taskInstance.getRetryTimes() + 1);
-                    }
-                    taskInstance.setSubmitTime(null);
-                    taskInstance.setLogPath(null);
-                    taskInstance.setExecutePath(null);
-                    taskInstance.setStartTime(null);
-                    taskInstance.setEndTime(null);
-                    taskInstance.setFlag(Flag.YES);
-                    taskInstance.setHost(null);
-                    taskInstance.setId(0);
-                }
-            }
+        if (processInstanceState.typeIsFinished() || processInstanceState == ExecutionStatus.READY_STOP) {
+            logger.warn("processInstance {} was {}, skip submit task", processInstance.getProcessDefinitionCode(), processInstanceState);
+            return null;
         }
-        taskInstance.setExecutorId(processInstance.getExecutorId());
+        if (processInstanceState == ExecutionStatus.READY_PAUSE) {
+            taskInstance.setState(ExecutionStatus.PAUSE);
+        }
         taskInstance.setProcessInstancePriority(processInstance.getProcessInstancePriority());
+        taskInstance.setExecutorId(processInstance.getExecutorId());
         taskInstance.setState(getSubmitTaskState(taskInstance, processInstanceState));
         if (taskInstance.getSubmitTime() == null) {
             taskInstance.setSubmitTime(new Date());
@@ -2015,6 +2004,28 @@ public class ProcessService {
     public List<Schedule> selectAllByProcessDefineCode(long[] codes) {
         return scheduleMapper.selectAllByProcessDefineArray(codes);
     }
+    
+    /**
+     * find last task instance in the date interval
+     *
+     * @param taskCode     taskCode
+     * @param dateInterval dateInterval
+     * @return task instance
+     */
+    public TaskInstance findLastTaskInstanceInterval(long taskCode, DateInterval dateInterval) {
+        return taskInstanceMapper.queryLastTaskInstance(taskCode, dateInterval.getStartTime(), dateInterval.getEndTime());
+    }
+
+    /**
+     * find last task instance list in the date interval
+     *
+     * @param taskCodes    taskCode list
+     * @param dateInterval dateInterval
+     * @return task instance
+     */
+    public List<TaskInstance> findLastTaskInstanceListInterval(Set<Long> taskCodes, DateInterval dateInterval) {
+        return taskInstanceMapper.queryLastTaskInstanceList(taskCodes, dateInterval.getStartTime(), dateInterval.getEndTime());
+    }    
 
     /**
      * find last scheduler process instance in the date interval
@@ -2310,6 +2321,23 @@ public class ProcessService {
             taskDefinitionLog.setOperateTime(now);
             taskDefinitionLog.setOperator(operator.getId());
             taskDefinitionLog.setResourceIds(getResourceIds(taskDefinitionLog));
+            if (taskDefinitionLog.getCode() > 0 && taskDefinitionLog.getVersion() > 0) {
+                TaskDefinitionLog definitionCodeAndVersion = taskDefinitionLogMapper
+                        .queryByDefinitionCodeAndVersion(taskDefinitionLog.getCode(), taskDefinitionLog.getVersion());
+                if (definitionCodeAndVersion != null) {
+                    if (!taskDefinitionLog.equals(definitionCodeAndVersion)) {
+                        taskDefinitionLog.setUserId(definitionCodeAndVersion.getUserId());
+                        Integer version = taskDefinitionLogMapper.queryMaxVersionForDefinition(taskDefinitionLog.getCode());
+                        taskDefinitionLog.setVersion(version + 1);
+                        taskDefinitionLog.setCreateTime(definitionCodeAndVersion.getCreateTime());
+                        updateTaskDefinitionLogs.add(taskDefinitionLog);
+                    }
+                    continue;
+                }
+            }
+            taskDefinitionLog.setUserId(operator.getId());
+            taskDefinitionLog.setVersion(Constants.VERSION_FIRST);
+            taskDefinitionLog.setCreateTime(now);
             if (taskDefinitionLog.getCode() == 0) {
                 try {
                     taskDefinitionLog.setCode(CodeGenerateUtils.getInstance().genCode());
@@ -2318,27 +2346,7 @@ public class ProcessService {
                     return Constants.DEFINITION_FAILURE;
                 }
             }
-            if (taskDefinitionLog.getVersion() == 0) {
-                // init first version
-                taskDefinitionLog.setVersion(Constants.VERSION_FIRST);
-            }
-            TaskDefinitionLog definitionCodeAndVersion = taskDefinitionLogMapper
-                    .queryByDefinitionCodeAndVersion(taskDefinitionLog.getCode(), taskDefinitionLog.getVersion());
-            if (definitionCodeAndVersion == null) {
-                taskDefinitionLog.setUserId(operator.getId());
-                taskDefinitionLog.setCreateTime(now);
-                newTaskDefinitionLogs.add(taskDefinitionLog);
-                continue;
-            }
-            if (taskDefinitionLog.equals(definitionCodeAndVersion)) {
-                // do nothing if equals
-                continue;
-            }
-            taskDefinitionLog.setUserId(definitionCodeAndVersion.getUserId());
-            Integer version = taskDefinitionLogMapper.queryMaxVersionForDefinition(taskDefinitionLog.getCode());
-            taskDefinitionLog.setVersion(version + 1);
-            taskDefinitionLog.setCreateTime(definitionCodeAndVersion.getCreateTime());
-            updateTaskDefinitionLogs.add(taskDefinitionLog);
+            newTaskDefinitionLogs.add(taskDefinitionLog);
         }
         int insertResult = 0;
         int updateResult = 0;
@@ -2356,7 +2364,7 @@ public class ProcessService {
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(newTaskDefinitionLogs)) {
+        if (!newTaskDefinitionLogs.isEmpty()) {
             insertResult += taskDefinitionLogMapper.batchInsert(newTaskDefinitionLogs);
             if (Boolean.TRUE.equals(syncDefine)) {
                 updateResult += taskDefinitionMapper.batchInsert(newTaskDefinitionLogs);

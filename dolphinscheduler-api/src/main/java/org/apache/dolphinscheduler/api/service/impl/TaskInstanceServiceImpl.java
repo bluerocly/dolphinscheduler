@@ -17,8 +17,9 @@
 
 package org.apache.dolphinscheduler.api.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.dolphinscheduler.api.enums.Status;
-import org.apache.dolphinscheduler.api.service.ProcessInstanceService;
 import org.apache.dolphinscheduler.api.service.ProjectService;
 import org.apache.dolphinscheduler.api.service.TaskInstanceService;
 import org.apache.dolphinscheduler.api.service.UsersService;
@@ -31,27 +32,16 @@ import org.apache.dolphinscheduler.common.process.Property;
 import org.apache.dolphinscheduler.common.utils.CollectionUtils;
 import org.apache.dolphinscheduler.common.utils.DateUtils;
 import org.apache.dolphinscheduler.common.utils.JSONUtils;
-import org.apache.dolphinscheduler.dao.entity.Project;
-import org.apache.dolphinscheduler.dao.entity.TaskDefinition;
-import org.apache.dolphinscheduler.dao.entity.TaskInstance;
-import org.apache.dolphinscheduler.dao.entity.User;
+import org.apache.dolphinscheduler.dao.entity.*;
 import org.apache.dolphinscheduler.dao.mapper.ProjectMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskInstanceMapper;
 import org.apache.dolphinscheduler.service.process.ProcessService;
 import org.apache.dolphinscheduler.spi.utils.StringUtils;
-
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * task instance service impl
@@ -70,9 +60,6 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
 
     @Autowired
     TaskInstanceMapper taskInstanceMapper;
-
-    @Autowired
-    ProcessInstanceService processInstanceService;
 
     @Autowired
     UsersService usersService;
@@ -98,18 +85,18 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
      */
     @Override
     public Result queryTaskListPaging(User loginUser,
-                                                   long projectCode,
-                                                   Integer processInstanceId,
-                                                   String processInstanceName,
-                                                   String taskName,
-                                                   String executorName,
-                                                   String startDate,
-                                                   String endDate,
-                                                   String searchVal,
-                                                   ExecutionStatus stateType,
-                                                   String host,
-                                                   Integer pageNo,
-                                                   Integer pageSize) {
+            long projectCode,
+            Integer processInstanceId,
+            String processInstanceName,
+            String taskName,
+            String executorName,
+            String startDate,
+            String endDate,
+            String searchVal,
+            ExecutionStatus stateType,
+            String host,
+            Integer pageNo,
+            Integer pageSize) {
         Result result = new Result();
         Project project = projectMapper.queryByCode(projectCode);
         //check user access for project
@@ -204,6 +191,16 @@ public class TaskInstanceServiceImpl extends BaseServiceImpl implements TaskInst
             return result;
         }
 
+        ProcessInstance processInstance = processService.findProcessInstanceDetailById(task.getProcessInstanceId());
+        if (processInstance != null && processInstance.getState().typeIsFailure()) {
+            List<TaskInstance> validTaskList = processService.findValidTaskListByProcessId(processInstance.getId());
+            List<Integer> failTaskList = validTaskList.stream().filter(instance -> instance.getState().typeIsFailure())
+                    .map(TaskInstance::getId).collect(Collectors.toList());
+            if (failTaskList.size() == 1 && failTaskList.contains(taskInstanceId)) {
+                processInstance.setState(ExecutionStatus.SUCCESS);
+                processService.updateProcessInstance(processInstance);
+            }
+        }
         // change the state of the task instance
         task.setState(ExecutionStatus.FORCED_SUCCESS);
         int changedNum = taskInstanceMapper.updateById(task);

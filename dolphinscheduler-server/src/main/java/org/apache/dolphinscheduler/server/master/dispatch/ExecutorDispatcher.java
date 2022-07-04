@@ -18,6 +18,8 @@
 package org.apache.dolphinscheduler.server.master.dispatch;
 
 
+import org.apache.dolphinscheduler.common.Constants;
+import org.apache.dolphinscheduler.common.thread.ThreadUtils;
 import org.apache.dolphinscheduler.remote.utils.Host;
 import org.apache.dolphinscheduler.server.master.dispatch.context.ExecutionContext;
 import org.apache.dolphinscheduler.server.master.dispatch.enums.ExecutorType;
@@ -40,9 +42,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ExecutorDispatcher implements InitializingBean {
 
-    /**
-     * netty executor manager
-     */
+	// get executor manager
     @Autowired
     private NettyExecutorManager nettyExecutorManager;
 
@@ -80,12 +80,10 @@ public class ExecutorDispatcher implements InitializingBean {
             throw new ExecuteException("no ExecutorManager for type : " + context.getExecutorType());
         }
 
-        /**
-         * host select
-         */
-
+        // host select
         Host host = hostManager.select(context);
         if (StringUtils.isEmpty(host.getAddress())) {
+            ThreadUtils.sleep(Constants.SLEEP_TIME_MILLIS);
             throw new ExecuteException(String.format("fail to execute : %s due to no suitable worker, "
                             + "current task needs worker group %s to execute",
                     context.getCommand(),context.getWorkerGroup()));
@@ -93,9 +91,7 @@ public class ExecutorDispatcher implements InitializingBean {
         context.setHost(host);
         executorManager.beforeExecute(context);
         try {
-            /**
-             * task execute
-             */
+        	// task execute
             return executorManager.execute(context);
         } finally {
             executorManager.afterExecute(context);

@@ -25,5 +25,6 @@ public enum  TaskAction {
     STOP,
     TIMEOUT,
     SUBMIT,
-    RUN
+    RUN,
+    RESUBMIT
 }
