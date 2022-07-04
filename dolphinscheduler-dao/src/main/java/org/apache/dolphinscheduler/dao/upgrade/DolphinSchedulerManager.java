@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import com.zaxxer.hikari.HikariDataSource;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
@@ -48,12 +46,7 @@ public class DolphinSchedulerManager {
     }
 
     private DbType getCurrentDbType(DataSource dataSource) throws Exception {
-    	HikariDataSource ds1 = (HikariDataSource) dataSource;
-    	String userName = ds1.getUsername();
-    	String password = ds1.getPassword();
-    	String url = ds1.getJdbcUrl();
-    	logger.info("dataSource userName:{}, url:{}." , userName ,url);
-        try (Connection conn = dataSource.getConnection()) {
+    	try (Connection conn = dataSource.getConnection()) {
             String name = conn.getMetaData().getDatabaseProductName().toUpperCase();
             return DbType.valueOf(name);
         }
@@ -82,6 +75,7 @@ public class DolphinSchedulerManager {
         logger.info("Start initializing the DolphinScheduler manager table structure");
         upgradeDao.initSchema();
     }
+    
     public void upgradeDolphinScheduler() throws IOException {
         // Gets a list of all upgrades
         List<String> schemaList = SchemaUtils.getAllSchemaList();
@@ -104,6 +98,7 @@ public class DolphinSchedulerManager {
             }
             // The target version of the upgrade
             String schemaVersion = "";
+            String currentVersion = version;
             for (String schemaDir : schemaList) {
                 schemaVersion = schemaDir.split("_")[0];
                 if (SchemaUtils.isAGreatVersion(schemaVersion, version)) {
@@ -119,6 +114,10 @@ public class DolphinSchedulerManager {
                     }
                     version = schemaVersion;
                 }
+            }
+
+            if (SchemaUtils.isAGreatVersion("2.0.6", currentVersion) && SchemaUtils.isAGreatVersion(SchemaUtils.getSoftVersion(), currentVersion)) {
+                upgradeDao.upgradeDolphinSchedulerResourceFileSize();
             }
         }
 
