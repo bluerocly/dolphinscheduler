@@ -143,8 +143,21 @@
             :placeholder="$t('FTP date format example')">
           </el-input>
         </div>
-      </m-list-box>      
-            
+      </m-list-box>
+         
+      <m-list-box v-if="dtType=='FTP'">
+        <div slot="text">{{$t('FTP compress')}}</div>
+        <div slot="content">
+        <el-select v-model="ftpCompress" placeholder={{$t('FTP compress')}}>
+        	<el-option label="" value=""> </el-option>
+        	<el-option label="gzip" value="gzip"> </el-option>
+        	<el-option label="bzip2" value="bzip2"></el-option>
+  		</el-select>
+          <span>({{$t('FTP compress example')}})</span>
+        </div>
+      </m-list-box>
+        
+      
       <m-list-box v-if="dtType!='FTP'">
         <div slot="text">{{$t('TargetTable')}}</div>
         <div slot="content">
@@ -351,6 +364,7 @@
 		ftpHeader:"",
 		ftpFileSuffix:"",
 		ftpDateFormat:"",
+		ftpCompress:"",
         notification:false,
         queueName:'',
         groupId:null
@@ -528,6 +542,7 @@
 			ftpHeader: this.ftpHeader,
 			ftpFileSuffix: this.ftpFileSuffix,
 			ftpDateFormat: this.ftpDateFormat,
+			ftpCompress: this.ftpCompress,
             notification:this.notification,
             queueName:this.queueName,
             groupId:this.groupId,
@@ -643,6 +658,7 @@
 		  ftpHeader: this.ftpHeader,
 		  ftpFileSuffix: this.ftpFileSuffix,
 		  ftpDateFormat: this.ftpDateFormat,
+		  ftpCompress: this.ftpCompress,
           subdirectory:this.subdirectory,
           notification:this.notification,
           queueName:this.queueName,
@@ -690,6 +706,7 @@
           this.ftpHeader=o.params.ftpHeader||""
           this.ftpFileSuffix=o.params.ftpFileSuffix||""
           this.ftpDateFormat=o.params.ftpDateFormat||""
+          this.ftpCompress=o.params.ftpCompress||""
           this.subdirectory=o.params.subdirectory||""
           this.dsType = o.params.dsType || ''
           this.datasource = o.params.dataSource || ''
@@ -767,6 +784,7 @@
           this.ftpHeader="";
           this.ftpFileSuffix="";
           this.ftpDateFormat="";
+          this.ftpCompress="";
           this.subdirectory="";
         }
       },

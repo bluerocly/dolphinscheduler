@@ -502,6 +502,8 @@ public class DataxTask extends AbstractTaskExecutor {
         	ftpDateFormat = "yyyy-MM-dd HH:mm:ss";
         }
         
+        String ftpCompress = dataXParameters.getFtpCompress();
+        
         ObjectNode writerParam = JSONUtils.createObjectNode();
         writerParam.put("protocol", protocol);
         writerParam.put("host", host);
@@ -520,6 +522,10 @@ public class DataxTask extends AbstractTaskExecutor {
         writerParam.put("dateFormat", ftpDateFormat);
         writerParam.put("fileFormat", "csv");
         writerParam.put("suffix", ftpFileSuffix);
+        if(!StringUtils.isBlank(ftpCompress)) {
+        	writerParam.put("compress", ftpCompress.trim());
+        }
+
         
         ArrayNode headerArr = writerParam.putArray("header");
         for (String headerColumn : ftpHeaderColumns) {

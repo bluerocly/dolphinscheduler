@@ -113,6 +113,7 @@ public class DataxParameters extends AbstractParameters {
     private String ftpHeader;
     private String ftpFileSuffix;
     private String ftpDateFormat;
+    private String ftpCompress;
     private String subdirectory;
     private Boolean notification;
     private String queueName;
@@ -181,6 +182,14 @@ public class DataxParameters extends AbstractParameters {
 
 	public void setFtpDateFormat(String ftpDateFormat) {
 		this.ftpDateFormat = ftpDateFormat;
+	}
+	
+	public String getFtpCompress() {
+		return ftpCompress;
+	}
+
+	public void setFtpCompress(String ftpCompress) {
+		this.ftpCompress = ftpCompress;
 	}
 
 	public String getFileName() {
@@ -384,23 +393,17 @@ public class DataxParameters extends AbstractParameters {
         return new ArrayList<>();
     }
 
-    @Override
-    public String toString() {
-        return "DataxParameters{"
-                + "customConfig=" + customConfig
-                + ", json='" + json + '\''
-                + ", dsType='" + dsType + '\''
-                + ", dataSource=" + dataSource
-                + ", dtType='" + dtType + '\''
-                + ", dataTarget=" + dataTarget
-                + ", sql='" + sql + '\''
-                + ", targetTable='" + targetTable + '\''
-                + ", preStatements=" + preStatements
-                + ", postStatements=" + postStatements
-                + ", jobSpeedByte=" + jobSpeedByte
-                + ", jobSpeedRecord=" + jobSpeedRecord
-                + ", xms=" + xms
-                + ", xmx=" + xmx
-                + '}';
-    }
+	@Override
+	public String toString() {
+		return "DataxParameters [customConfig=" + customConfig + ", json=" + json + ", dsType=" + dsType
+				+ ", dataSource=" + dataSource + ", dtType=" + dtType + ", dataTarget=" + dataTarget + ", sql=" + sql
+				+ ", targetTable=" + targetTable + ", preStatements=" + preStatements + ", postStatements="
+				+ postStatements + ", jobSpeedByte=" + jobSpeedByte + ", jobSpeedRecord=" + jobSpeedRecord + ", xms="
+				+ xms + ", xmx=" + xmx + ", fileName=" + fileName + ", fieldDelimiter=" + fieldDelimiter
+				+ ", ftpEncoding=" + ftpEncoding + ", ftpHeader=" + ftpHeader + ", ftpFileSuffix=" + ftpFileSuffix
+				+ ", ftpDateFormat=" + ftpDateFormat + ", ftpCompress=" + ftpCompress + ", subdirectory=" + subdirectory
+				+ ", notification=" + notification + ", queueName=" + queueName + ", groupId=" + groupId
+				+ ", messagejson=" + messagejson + "]";
+	}
+
 }
