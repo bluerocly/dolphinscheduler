@@ -623,7 +623,7 @@ export default {
   TargetJobName: '目标任务名',
   'Please enter Pigeon job name': '请输入Pigeon任务名',
   'Please enter the table of target': '请输入目标表名',
-  'Please enter the queue name': '请输入队列名称',
+  'Please enter the queue name': '请输入队列名称，不填则使用告警组中配置的队列名称',
   'Please enter a Target Table(required)': '请输入目标表(必填)',
   SpeedByte: '限流(字节数)',
   SpeedRecord: '限流(记录数)',

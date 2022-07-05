@@ -433,10 +433,6 @@
         if(this.notification){
           console.log("messageEditor",messageEditor.getValue())
           
-          if (!this.queueName) {
-            this.$message.warning(`${i18n.$t('Please enter a queueName(required)')}`)
-            return false
-          }
           if (!this.groupId) {
             this.$message.warning(`${i18n.$t('Please enter a Alarm group(required)')}`)
             return false
