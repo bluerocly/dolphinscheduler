@@ -148,11 +148,13 @@
       <m-list-box v-if="dtType=='FTP'">
         <div slot="text">{{$t('FTP compress')}}</div>
         <div slot="content">
-        <el-select v-model="ftpCompress" placeholder={{$t('FTP compress')}}>
-        	<el-option label="" value=""> </el-option>
-        	<el-option label="gzip" value="gzip"> </el-option>
-        	<el-option label="bzip2" value="bzip2"></el-option>
-  		</el-select>
+	        <el-select
+	        	v-model="ftpCompress" 
+	        	:placeholder="$t('Please choose')">
+	        		<el-option label="" value=""> </el-option>
+	        		<el-option label="gzip" value="gzip"> </el-option>
+	        		<el-option label="bzip2" value="bzip2"></el-option>
+	  		</el-select>
           <span>({{$t('FTP compress example')}})</span>
         </div>
       </m-list-box>
