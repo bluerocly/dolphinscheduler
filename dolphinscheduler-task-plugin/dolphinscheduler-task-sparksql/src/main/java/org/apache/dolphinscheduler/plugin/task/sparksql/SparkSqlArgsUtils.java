@@ -38,7 +38,7 @@ public class SparkSqlArgsUtils {
     private static final String SPARK_ON_YARN = "yarn";
     
     
-	final static String MAIN_CLASS = "com.tong.bigdata.sparksql.SparkSqlApp";
+	final static String MAIN_CLASS = "com.tong.bigdata.spark.sql.SparkSqlApp";
 	final static String MAIN_JAR = "bigdata-sparksql-1.0.0-jar-with-dependencies.jar";
 	final static ProgramType PROGRAM_TYPE = ProgramType.JAVA;
 	final static String SPARKCONF_TASKFILE = "--conf spark.taskfile";
