@@ -209,6 +209,11 @@ public class TaskRequest {
      * sql TaskExecutionContext
      */
     private SQLTaskExecutionContext sqlTaskExecutionContext;
+    
+    /**
+     * sparksql TaskExecutionContext
+     */
+    private SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext;
 
     /**
      * datax TaskExecutionContext
@@ -480,8 +485,16 @@ public class TaskRequest {
     public void setSqlTaskExecutionContext(SQLTaskExecutionContext sqlTaskExecutionContext) {
         this.sqlTaskExecutionContext = sqlTaskExecutionContext;
     }
+    
+    public SparkSqlTaskExecutionContext getSparkSqlTaskExecutionContext() {
+		return sparkSqlTaskExecutionContext;
+	}
 
-    public DataxTaskExecutionContext getDataxTaskExecutionContext() {
+	public void setSparkSqlTaskExecutionContext(SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext) {
+		this.sparkSqlTaskExecutionContext = sparkSqlTaskExecutionContext;
+	}
+
+	public DataxTaskExecutionContext getDataxTaskExecutionContext() {
         return dataxTaskExecutionContext;
     }
 

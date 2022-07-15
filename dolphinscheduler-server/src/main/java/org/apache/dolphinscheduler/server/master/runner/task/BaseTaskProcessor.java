@@ -25,6 +25,7 @@ import org.apache.dolphinscheduler.common.process.ResourceInfo;
 import org.apache.dolphinscheduler.common.task.AbstractParameters;
 import org.apache.dolphinscheduler.common.task.datax.DataxParameters;
 import org.apache.dolphinscheduler.common.task.procedure.ProcedureParameters;
+import org.apache.dolphinscheduler.common.task.sparksql.SparkSqlParameters;
 import org.apache.dolphinscheduler.common.task.sql.SqlParameters;
 import org.apache.dolphinscheduler.common.task.sqoop.SqoopParameters;
 import org.apache.dolphinscheduler.common.task.sqoop.sources.SourceMysqlParameter;
@@ -49,12 +50,14 @@ import org.apache.dolphinscheduler.spi.task.TaskConstants;
 import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.ProcedureTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.SQLTaskExecutionContext;
+import org.apache.dolphinscheduler.spi.task.request.SparkSqlTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.SqoopTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.UdfFuncRequest;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -264,6 +267,7 @@ public abstract class BaseTaskProcessor implements ITaskProcessor {
         taskInstance.setResources(getResourceFullNames(taskInstance));
 
         SQLTaskExecutionContext sqlTaskExecutionContext = new SQLTaskExecutionContext();
+        SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext = new SparkSqlTaskExecutionContext();
         DataxTaskExecutionContext dataxTaskExecutionContext = new DataxTaskExecutionContext();
         ProcedureTaskExecutionContext procedureTaskExecutionContext = new ProcedureTaskExecutionContext();
         SqoopTaskExecutionContext sqoopTaskExecutionContext = new SqoopTaskExecutionContext();
@@ -271,6 +275,10 @@ public abstract class BaseTaskProcessor implements ITaskProcessor {
         // SQL task
         if (TaskType.SQL.getDesc().equalsIgnoreCase(taskInstance.getTaskType())) {
             setSQLTaskRelation(sqlTaskExecutionContext, taskInstance);
+        }
+        // SPARKSQL task
+        if (TaskType.SPARKSQL.getDesc().equalsIgnoreCase(taskInstance.getTaskType())) {
+        	setUdfNames(sparkSqlTaskExecutionContext, taskInstance);
         }
 
         // DATAX task
@@ -293,13 +301,33 @@ public abstract class BaseTaskProcessor implements ITaskProcessor {
                 .buildProcessInstanceRelatedInfo(taskInstance.getProcessInstance())
                 .buildProcessDefinitionRelatedInfo(taskInstance.getProcessDefine())
                 .buildSQLTaskRelatedInfo(sqlTaskExecutionContext)
+                .buildSparkSqlTaskRelatedInfo(sparkSqlTaskExecutionContext)
                 .buildDataxTaskRelatedInfo(dataxTaskExecutionContext)
                 .buildProcedureTaskRelatedInfo(procedureTaskExecutionContext)
                 .buildSqoopTaskRelatedInfo(sqoopTaskExecutionContext)
                 .create();
     }
 
-    /**
+    private void setUdfNames(SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext, TaskInstance taskInstance) {
+    	SparkSqlParameters sparkSqlParameters = JSONUtils.parseObject(taskInstance.getTaskParams(), SparkSqlParameters.class);
+    	sparkSqlTaskExecutionContext.setDefaultFS(HadoopUtils.getInstance().getDefaultFS());
+        if (!StringUtils.isEmpty(sparkSqlParameters.getUdfs())) {
+            String[] udfFunIds = sparkSqlParameters.getUdfs().split(",");
+            int[] udfFunIdsArray = new int[udfFunIds.length];
+            for (int i = 0; i < udfFunIds.length; i++) {
+                udfFunIdsArray[i] = Integer.parseInt(udfFunIds[i]);
+            }
+
+            List<UdfFunc> udfFuncList = processService.queryUdfFunListByIds(udfFunIdsArray);
+            List<String> udfNames = new ArrayList<>();
+            for (UdfFunc udfFunc : udfFuncList) {
+            	udfNames.add(udfFunc.getFuncName());
+            }
+            sparkSqlTaskExecutionContext.setUdfNames(udfNames);;
+        }
+	}
+
+	/**
      * set procedure task relation
      *
      * @param procedureTaskExecutionContext procedureTaskExecutionContext

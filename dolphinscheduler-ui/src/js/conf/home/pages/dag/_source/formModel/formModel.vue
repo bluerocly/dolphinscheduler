@@ -293,6 +293,15 @@
             :backfill-item="backfillItem"
           >
           </m-spark>
+          <!-- sparksql node -->
+          <m-sparksql
+            v-if="nodeData.taskType === 'SPARKSQL'"
+            @on-params="_onParams"
+            @on-cache-params="_onCacheParams"
+            ref="SPARKSQL"
+            :backfill-item="backfillItem"
+          >
+          </m-sparksql>
           <m-flink
             v-if="nodeData.taskType === 'FLINK'"
             @on-params="_onParams"
@@ -422,6 +431,7 @@
   import mShell from './tasks/shell'
   import mWaterdrop from './tasks/waterdrop'
   import mSpark from './tasks/spark'
+  import mSparksql from './tasks/sparksql'
   import mFlink from './tasks/flink'
   import mPython from './tasks/python'
   import mProcedure from './tasks/procedure'
@@ -963,6 +973,7 @@
       mSql,
       mLog,
       mSpark,
+      mSparksql,
       mFlink,
       mPython,
       mDependent,

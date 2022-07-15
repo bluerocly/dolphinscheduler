@@ -277,6 +277,10 @@ const tasksType = {
     desc: 'SPARK',
     color: '#E46F13'
   },
+  SPARKSQL: {
+    desc: 'SPARKSQL',
+    color: '#E46F13'
+  },
   FLINK: {
     desc: 'FLINK',
     color: '#E46F13'

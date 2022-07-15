@@ -22,6 +22,7 @@
           <template slot="name"><strong>*</strong>{{$t('type')}}</template>
           <template slot="content">
             <el-radio-group v-model="type" size="mini" style="vertical-align: sub">
+              <el-radio :label="'SPARK'">SPARK UDF</el-radio>
               <el-radio :label="'HIVE'">HIVE UDF</el-radio>
               <!--<v-radio :label="'SPARK'">SPARK UDF</v-radio>-->
             </el-radio-group>
@@ -108,7 +109,7 @@
     data () {
       return {
         store,
-        type: 'HIVE',
+        type: 'SPARK',
         funcName: '',
         className: '',
         argTypes: '',

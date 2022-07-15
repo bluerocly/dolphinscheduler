@@ -108,6 +108,9 @@
           &.icos-spark {
             background-image: url("../images/task-icos/spark.png");
           }
+          &.icos-sparksql {
+            background-image: url("../images/task-icos/sparksql.png");
+          }
           &.icos-switch {
             background-image: url("../images/task-icos/switch.png");
           }
@@ -167,6 +170,9 @@
             }
             &.icos-spark {
               background-image: url("../images/task-icos/spark_hover.png");
+            }
+            &.icos-sparksql {
+              background-image: url("../images/task-icos/sparksql_hover.png");
             }
             &.icos-switch {
               background-image: url("../images/task-icos/switch_hover.png");

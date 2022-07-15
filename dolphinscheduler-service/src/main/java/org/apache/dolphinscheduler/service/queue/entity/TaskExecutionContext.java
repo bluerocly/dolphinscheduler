@@ -26,6 +26,7 @@ import org.apache.dolphinscheduler.remote.command.TaskExecuteRequestCommand;
 import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.ProcedureTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.SQLTaskExecutionContext;
+import org.apache.dolphinscheduler.spi.task.request.SparkSqlTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.SqoopTaskExecutionContext;
 
 import java.io.Serializable;
@@ -217,6 +218,11 @@ public class TaskExecutionContext implements Serializable {
      * sql TaskExecutionContext
      */
     private SQLTaskExecutionContext sqlTaskExecutionContext;
+
+    /**
+     * SparkSql TaskExecutionContext
+     */
+    private SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext;
 
     /**
      * datax TaskExecutionContext
@@ -523,6 +529,14 @@ public class TaskExecutionContext implements Serializable {
 
     public void setSqlTaskExecutionContext(SQLTaskExecutionContext sqlTaskExecutionContext) {
         this.sqlTaskExecutionContext = sqlTaskExecutionContext;
+    }
+    
+    public SparkSqlTaskExecutionContext getSparkSqlTaskExecutionContext() {
+        return sparkSqlTaskExecutionContext;
+    }
+    
+    public void setSparkSqlTaskExecutionContext(SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext) {
+    	this.sparkSqlTaskExecutionContext = sparkSqlTaskExecutionContext;
     }
 
     public DataxTaskExecutionContext getDataxTaskExecutionContext() {

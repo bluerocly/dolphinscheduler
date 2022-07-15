@@ -29,6 +29,7 @@ import org.apache.dolphinscheduler.service.queue.entity.TaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.DataxTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.ProcedureTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.SQLTaskExecutionContext;
+import org.apache.dolphinscheduler.spi.task.request.SparkSqlTaskExecutionContext;
 import org.apache.dolphinscheduler.spi.task.request.SqoopTaskExecutionContext;
 
 /**
@@ -117,6 +118,17 @@ public class TaskExecutionContextBuilder {
      */
     public TaskExecutionContextBuilder buildSQLTaskRelatedInfo(SQLTaskExecutionContext sqlTaskExecutionContext) {
         taskExecutionContext.setSqlTaskExecutionContext(sqlTaskExecutionContext);
+        return this;
+    }
+    
+    /**
+     * build sparkSqlTask related info
+     *
+     * @param sqlTaskExecutionContext sqlTaskExecutionContext
+     * @return TaskExecutionContextBuilder
+     */
+    public TaskExecutionContextBuilder buildSparkSqlTaskRelatedInfo(SparkSqlTaskExecutionContext sparkSqlTaskExecutionContext) {
+        taskExecutionContext.setSparkSqlTaskExecutionContext(sparkSqlTaskExecutionContext);
         return this;
     }
 
