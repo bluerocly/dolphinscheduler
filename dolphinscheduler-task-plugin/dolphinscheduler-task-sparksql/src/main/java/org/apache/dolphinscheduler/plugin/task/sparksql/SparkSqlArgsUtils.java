@@ -39,7 +39,7 @@ public class SparkSqlArgsUtils {
     
     
 	final static String MAIN_CLASS = "com.tong.bigdata.sparksql.SparkSqlApp";
-	final static String MAIN_JAR = "bigdata-sparksql-1.0.0-jar-with-dependencies";
+	final static String MAIN_JAR = "bigdata-sparksql-1.0.0-jar-with-dependencies.jar";
 	final static ProgramType PROGRAM_TYPE = ProgramType.JAVA;
 	final static String SPARKCONF_TASKFILE = "--conf spark.taskfile";
 	final static String SPARK_FILES = "--files";
