@@ -133,6 +133,7 @@ export default {
   'TaskManager Number': 'TaskManager数量',
   'Please enter TaskManager number': '请输入TaskManager数量',
   'App Name': '任务名称',
+  'Please enter app name(optional)': '请输入任务名称(可选)',
   'Please enter app name(required)': '请输入任务名称(必选)',
   'Please enter app name': '请输入任务名称',
   'app name extend info': '周期任务，最好增加时间变量',

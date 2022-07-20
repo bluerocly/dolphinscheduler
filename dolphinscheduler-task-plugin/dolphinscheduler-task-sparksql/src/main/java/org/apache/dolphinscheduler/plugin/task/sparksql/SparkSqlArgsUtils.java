@@ -142,7 +142,7 @@ public class SparkSqlArgsUtils {
 	private static void addDefaultExtendArgs(List<String> args, String others, String jsonFilePath) {
 		//
 		if(others!=null && !others.contains("spark.network.timeout")) {
-			args.add("--conf spark.network.timeout=10000000");
+			args.add("--conf spark.network.timeout=10000001");
 		}
 		if(others!=null && !others.contains("spark.executor.heartbeatInterval")) {
 			args.add("--conf spark.executor.heartbeatInterval=10000000");
